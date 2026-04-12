@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:intl/intl.dart';
-import 'models.dart';
+import 'package:app/models/models.dart';
 
 class QRScreen extends StatelessWidget {
   final Court court;
   final DateTime date;
   final String time;
   final double total;
+  final String uuid;
 
   const QRScreen({
     Key? key,
@@ -15,12 +16,12 @@ class QRScreen extends StatelessWidget {
     required this.date,
     required this.time,
     required this.total,
+    required this.uuid,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Simulamos un UUID devuelto por el Backend del Miembro 2
-    final String mockUUID = 'reserva-${DateTime.now().millisecondsSinceEpoch}';
+    // Usamos el UUID pasado desde el proceso de pago
 
     return Scaffold(
       appBar: AppBar(title: const Text('Confirmación')),
@@ -48,14 +49,14 @@ class QRScreen extends StatelessWidget {
                     Text('${DateFormat('dd/MM/yyyy').format(date)} a las $time', style: const TextStyle(color: Colors.grey)),
                     const SizedBox(height: 24),
                     QrImageView(
-                      data: mockUUID,
+                      data: uuid,
                       version: QrVersions.auto,
                       size: 200.0,
                     ),
                     const SizedBox(height: 16),
                     const Text('Escanea este QR en la pista para acceder', textAlign: TextAlign.center),
                     const SizedBox(height: 8),
-                    Text('ID: $mockUUID', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text('ID: $uuid', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ),

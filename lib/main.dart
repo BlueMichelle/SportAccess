@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'login_screen.dart';
+import 'package:app/screens/login_screen.dart';
 
-void main() {
+import 'package:app/models/models.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await loadData();
   runApp(const SportAccessApp());
 }
 
@@ -14,7 +18,7 @@ class SportAccessApp extends StatelessWidget {
       title: 'Polirent - SportAccess',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        cardTheme: const CardTheme(color: Colors.white),
+        cardTheme: const CardThemeData(color: Colors.white),
         primaryColor: const Color(0xFFF05B3A),
         scaffoldBackgroundColor: const Color(0xFFF7FAFD),
         colorScheme: ColorScheme.fromSeed(
