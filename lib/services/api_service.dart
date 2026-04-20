@@ -1,31 +1,38 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:app/models/models.dart';
 
 class ApiService {
-  // Aquí usamos la IP genérica del simulador Android hacia el localhost del ordenador
-  // Si usáis iOS, cambiad el 10.0.2.2 por localhost
+  // IP para emulador Android. Si usas dispositivo real, cambia a tu IP de red local.
   static const String baseUrl = 'http://10.0.2.2:8080/api';
-  final Dio dio = Dio(BaseOptions(baseUrl: baseUrl));
 
+  final Dio dio = Dio(BaseOptions(
+    baseUrl: baseUrl,
+    connectTimeout: const Duration(seconds: 5), // Si en 5s no conecta, salta el error
+    receiveTimeout: const Duration(seconds: 3),
+  ));
+
+  // 1. OBTENER TODAS LAS PISTAS
   // 1. Obtener todas las pistas
   Future<List<Court>> getCourts() async {
     try {
+      print("📡 INTENTANDO CONECTAR A: $baseUrl/courts");
       final response = await dio.get('/courts');
+      print("📡 BACKEND RESPONDE: ${response.data}");
+
       final List<dynamic> data = response.data;
       return data.map((json) => Court.fromJson(json)).toList();
     } catch (e) {
-      print('Error al obtener pistas: $e');
-      // En caso de que el backend caiga temporalmente o haya un timeout, devolvemos mockCourts.
-      return mockCourts;
+      print('❌ ERROR DE CONEXIÓN: $e');
+      return []; // <--- CAMBIA ESTO (Quita mockCourts y pon [])
     }
   }
 
-  // 0a. REGISTRO: crea el usuario en la base de datos del backend
+  // 0a. REGISTRO
   Future<Map<String, dynamic>?> registerUser(String email, String name) async {
     try {
       final fakeUid = 'fb_${email.replaceAll('@', '_').replaceAll('.', '_')}';
-      
-      // FIX: Guardar también en la caché local para sobrevivir a reseteos de Spring Boot
+
       mockRegisteredUsers.add({
         'email': email,
         'name': name.isEmpty ? 'Usuario' : name,
@@ -41,56 +48,43 @@ class ApiService {
         'rol': 'USER',
       });
       return response.data;
-    } on DioException catch (e) {
-      print('Error en registro: ${e.response?.data}');
-      return null;
     } catch (e) {
-      print('Error genérico registro: $e');
+      print('Error en registro: $e');
       return null;
     }
   }
 
-  // 0b. LOGIN: verifica que el email existe en el backend
-  // Devuelve null si no existe → acceso denegado
+  // 0b. LOGIN
   Future<Map<String, dynamic>?> loginUser(String email) async {
     final emailLower = email.toLowerCase();
     try {
-      // Buscamos en la lista completa de usuarios del backend
       final allResponse = await dio.get('/users');
       final List<dynamic> users = allResponse.data;
-      // Buscamos el que tenga ese email (insensible a mayúsculas)
       for (final u in users) {
         if ((u['email'] ?? '').toString().toLowerCase() == emailLower) {
           return u as Map<String, dynamic>;
         }
       }
     } catch (e) {
-      print('Error al buscar en backend, probando fallback: $e');
+      print('Error al buscar en backend, probando fallback local: $e');
     }
-    
-    // Fallback: Si el backend se ha reseteado o hay fallo, comprobamos la caché local de usuarios registrados previamente
+
     for (final u in mockRegisteredUsers) {
       if ((u['email'] ?? '').toString().toLowerCase() == emailLower) {
         return u;
       }
     }
-    
-    return null; // No encontrado en ningún sitio → no está registrado
+    return null;
   }
 
-  // 2. Hacer una reserva
+  // 2. HACER UNA RESERVA (Pago)
   Future<dynamic> createReservation(Map<String, dynamic> data) async {
     try {
       final response = await dio.post('/reservations', data: data);
-      return response.data; 
+      return response.data;
     } on DioException catch (e) {
-      if (e.response != null) {
-        print('====== ERROR EXACTO DEL SERVIDOR ======');
-        print(e.response?.data);
-        print('=======================================');
-      } else {
-        print('Error de comunicación: ${e.message}');
-      }
+      print('====== ERROR SERVIDOR ======');
+      print(e.response?.data ?? 'Sin respuesta del servidor');
       return null;
     } catch (e) {
       print('Error genérico: $e');
@@ -98,45 +92,60 @@ class ApiService {
     }
   }
 
-  // 3. Obtener el historial de un usuario
+  // 3. HISTORIAL
   Future<List<dynamic>> getUserHistory(int userId) async {
     try {
       final response = await dio.get('/reservations/user/$userId');
       return response.data;
     } catch (e) {
-      print('Error obteniendo historial: $e');
+      print('Error historial: $e');
       return [];
     }
   }
 
-  // 4. Obtener reservas de una pista concreta (para bloquear disponibilidad)
+  // 4. RESERVAS DE UNA PISTA (Calendario)
   Future<List<Map<String, dynamic>>> getReservationsForCourt(String courtId) async {
     try {
-      final response = await dio.get('/reservations');
-      final List<dynamic> all = response.data;
-      // Filtramos en Flutter por la pista que nos interesa
-      return all
-          .where((r) => r['court'] != null && r['court']['id'].toString() == courtId)
-          .map((r) => r as Map<String, dynamic>)
-          .toList();
+      final fechaHoy = DateTime.now().toIso8601String().split('T')[0];
+      final response = await dio.get('/reservations/court/$courtId/horarios?fecha=$fechaHoy');
+      final List<dynamic> activas = response.data;
+      return activas.map((r) => r as Map<String, dynamic>).toList();
     } catch (e) {
-      print('Error obteniendo reservas de pista: $e');
-      return [];
+      print('Error obteniendo horarios, usando fallback: $e');
+      try {
+        final response = await dio.get('/reservations');
+        final List<dynamic> all = response.data;
+        return all
+            .where((r) => r['court'] != null && r['court']['id'].toString() == courtId && r['estado'] != 'CANCELADA')
+            .map((r) => r as Map<String, dynamic>)
+            .toList();
+      } catch (_) { return []; }
     }
   }
 
-  // 5. Buscar una reserva por su token QR (para validar el escáner)
+  // 5. QR TOKEN
   Future<Map<String, dynamic>?> getReservationByQrToken(String token) async {
     try {
       final response = await dio.get('/reservations');
       final List<dynamic> all = response.data;
       for (final r in all) {
-        if (r['qrToken'] == token) return r as Map<String, dynamic>;
+        if (r['qrToken'] == token && r['estado'] != 'CANCELADA') {
+          return r as Map<String, dynamic>;
+        }
       }
-      return null; // QR no registrado en ninguna reserva
-    } catch (e) {
-      print('Error buscando QR en backend: $e');
       return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 6. CANCELAR
+  Future<bool> cancelReservation(int reservaId) async {
+    try {
+      final response = await dio.put('/reservations/$reservaId/cancel');
+      return response.statusCode == 200 || response.statusCode == 204;
+    } catch (e) {
+      return false;
     }
   }
 }

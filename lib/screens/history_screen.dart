@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:app/models/models.dart';
 import 'package:app/screens/qr_screen.dart';
 
@@ -11,7 +13,44 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  void _cancelReservation(int indexInGlobal) {
+  List<dynamic> _misReservas = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _cargarMisReservas();
+  }
+
+  Future<void> _cargarMisReservas() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+    try {
+      final url = Uri.parse('http://10.0.2.2:8080/api/reservations');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> todas = jsonDecode(utf8.decode(response.bodyBytes));
+        final filtradas = todas.where((r) {
+          final userEmail = r['user']['email'] ?? '';
+          final estado = r['estado'] ?? '';
+          return userEmail == loggedUserEmail && estado != 'CANCELADA';
+        }).toList();
+
+        if (mounted) {
+          setState(() {
+            _misReservas = filtradas;
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error al cargar historial: $e');
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _cancelReservation(int reservaId) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -20,12 +59,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('NO')),
           TextButton(
-            onPressed: () {
-              setState(() {
-                mockReservations.removeAt(indexInGlobal);
-              });
+            onPressed: () async {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reserva cancelada correctamente')));
+              final url = Uri.parse('http://10.0.2.2:8080/api/reservations/$reservaId/cancel');
+              try {
+                final response = await http.put(url);
+                if (response.statusCode == 200) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reserva cancelada correctamente')));
+                  _cargarMisReservas();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al cancelar'), backgroundColor: Colors.red));
+                }
+              } catch (e) {
+                print(e);
+              }
             },
             child: const Text('SÍ, CANCELAR', style: TextStyle(color: Colors.red)),
           ),
@@ -43,16 +90,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
         appBar: AppBar(
           title: const Text('Mis Reservas', style: TextStyle(fontWeight: FontWeight.bold)),
           bottom: const TabBar(
-            tabs: [
-              Tab(text: 'PRÓXIMAS'),
-              Tab(text: 'ANTERIORES'),
-            ],
+            tabs: [Tab(text: 'PRÓXIMAS'), Tab(text: 'ANTERIORES')],
             indicatorColor: Color(0xFFF05B3A),
             labelColor: Color(0xFFF05B3A),
             unselectedLabelColor: Colors.grey,
           ),
         ),
-        body: TabBarView(
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: Color(0xFFF05B3A)))
+            : TabBarView(
           children: [
             _buildFilteredList(isUpcoming: true),
             _buildFilteredList(isUpcoming: false),
@@ -63,16 +109,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildFilteredList({required bool isUpcoming}) {
-    // Necesitamos el índice original para poder borrar de la lista global
-    List<Map<String, dynamic>> displayedList = [];
-    List<int> originalIndices = [];
-
-    for (int i = 0; i < mockReservations.length; i++) {
-      if (mockReservations[i]['isScanned'] == !isUpcoming && mockReservations[i]['email'] == loggedUserEmail) {
-        displayedList.add(mockReservations[i]);
-        originalIndices.add(i);
-      }
-    }
+    final now = DateTime.now();
+    List<dynamic> displayedList = _misReservas.where((res) {
+      final fechaFin = DateTime.parse(res['fechaFin']);
+      return isUpcoming ? fechaFin.isAfter(now) : fechaFin.isBefore(now);
+    }).toList();
 
     if (displayedList.isEmpty) {
       return Center(
@@ -92,9 +133,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
       itemCount: displayedList.length,
       itemBuilder: (context, index) {
         final res = displayedList[index];
-        final globalIndex = originalIndices[index];
-        final DateTime date = res['date'] as DateTime;
-        
+        final id = res['id'];
+        final courtData = res['court'];
+        final courtName = courtData['nombre'] ?? 'Pista';
+        final DateTime date = DateTime.parse(res['fechaInicio']);
+        final horaInicio = DateFormat('HH:mm').format(date);
+        final price = (courtData['precioPorHora'] ?? 10.0).toDouble();
+
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -104,13 +149,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
               backgroundColor: isUpcoming ? const Color(0xFFF05B3A).withOpacity(0.1) : Colors.grey.shade100,
               child: Icon(isUpcoming ? Icons.calendar_today : Icons.history, color: isUpcoming ? const Color(0xFFF05B3A) : Colors.grey),
             ),
-            title: Text(res['courtName'], style: const TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(courtName, style: const TextStyle(fontWeight: FontWeight.bold)),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 4),
-                Text('${DateFormat('dd/MM/yyyy').format(date)} a las ${res['time']}'),
-                Text('${res['total'].toStringAsFixed(2)} €', style: const TextStyle(color: Color(0xFFF05B3A), fontWeight: FontWeight.bold)),
+                Text('${DateFormat('dd/MM/yyyy').format(date)} a las $horaInicio'),
+                const Text('Abonado', style: TextStyle(color: Color(0xFFF05B3A), fontWeight: FontWeight.bold)),
               ],
             ),
             trailing: Row(
@@ -120,16 +165,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   IconButton(
                     icon: const Icon(Icons.qr_code, color: Color(0xFF1B263B)),
                     onPressed: () {
-                      final court = mockCourts.firstWhere((c) => c.name == res['courtName'], orElse: () => mockCourts[0]);
+                      // FIX: Ya no usamos mockCourts. Creamos un objeto Court al vuelo con los datos de la reserva
+                      final courtObj = Court(
+                        id: courtData['id'].toString(),
+                        name: courtName,
+                        sports: [], // No lo necesitamos para el QR
+                        imageUrl: courtData['imagen_url'] ?? '',
+                        pricePerHour: price,
+                        location: courtData['ubicacion'] ?? '',
+                      );
+
                       Navigator.push(context, MaterialPageRoute(builder: (_) => QRScreen(
-                        court: court, date: date, time: res['time'], total: res['total'], uuid: res['uuid'],
+                        court: courtObj,
+                        date: date,
+                        time: horaInicio,
+                        total: price,
+                        uuid: res['qrToken'],
                       )));
                     },
                   ),
                 if (isUpcoming)
                   IconButton(
                     icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => _cancelReservation(globalIndex),
+                    onPressed: () => _cancelReservation(id),
                   ),
                 if (!isUpcoming) const Icon(Icons.check_circle, color: Colors.green),
               ],
