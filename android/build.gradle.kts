@@ -1,3 +1,13 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // En Kotlin DSL hay que usar paréntesis y comillas dobles ""
+        classpath("com.google.gms:google-services:4.4.0")
+    }
+}
 allprojects {
     repositories {
         google()

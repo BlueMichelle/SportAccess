@@ -6,6 +6,7 @@ import 'package:app/screens/scanner_screen.dart';
 import 'package:app/screens/login_screen.dart';
 import 'package:app/services/api_service.dart';
 import 'package:app/screens/contact_screen.dart';
+import 'package:app/screens/report_incident_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -95,6 +96,15 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.history, color: Color(0xFFF05B3A)),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
+          ),
+          IconButton(
+            icon: const Icon(Icons.report_problem_outlined, color: Color(0xFFF05B3A)),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ReportIncidentScreen()),
+              );
+            },
           ),
         ],
       ),
@@ -262,6 +272,17 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ContactScreen()));
+              }
+          ),
+          ListTile(
+              leading: const Icon(Icons.report_problem_outlined, color: Color(0xFFF05B3A)),
+              title: const Text('Reportar Incidencia'),
+              onTap: () {
+                Navigator.pop(context); // Esto cierra el menú para que no se quede abierto
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ReportIncidentScreen())
+                );
               }
           ),
           const Spacer(),
