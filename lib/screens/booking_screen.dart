@@ -22,8 +22,10 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Map<String, Set<String>> _occupiedSlots = {};
 
-  // --- NUEVO: ESTADO DEL MATERIAL ---
+  // --- ESTADO EXTRAS (MATERIAL Y ÁRBITRO) ---
   Map<String, int> _selectedMaterials = {};
+  bool _wantsReferee = false; // NUEVO: Estado del árbitro
+  final double _refereePrice = 15.0; // Precio fijo del árbitro
 
   final List<String> _availableTimes = ['09:00', '10:00', '11:00', '12:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
   final List<int> _hourOptions = [1, 2, 3];
@@ -34,7 +36,7 @@ class _BookingScreenState extends State<BookingScreen> {
     _loadCourtReservations();
   }
 
-  // --- NUEVO: LÓGICA DE MATERIAL DEPENDIENDO DEL DEPORTE ---
+  // --- LÓGICA DE MATERIAL DEPENDIENDO DEL DEPORTE ---
   List<Map<String, dynamic>> get _availableEquipment {
     final name = widget.court.name.toLowerCase();
     if (name.contains('pádel') || name.contains('tenis')) {
@@ -44,7 +46,7 @@ class _BookingScreenState extends State<BookingScreen> {
     } else if (name.contains('baloncesto')) {
       return [{'name': 'Balón de Baloncesto', 'price': 2.0}];
     }
-    return [{'name': 'Botella de Agua 1.5L', 'price': 1.0}]; // Por defecto
+    return [{'name': 'Botella de Agua 1.5L', 'price': 1.0}];
   }
 
   double get _totalMaterialPrice {
@@ -56,16 +58,19 @@ class _BookingScreenState extends State<BookingScreen> {
     return total;
   }
 
-  String get _materialDetails {
+  // NUEVO: Suma el precio del material y del árbitro
+  double get _totalExtrasPrice => _totalMaterialPrice + (_wantsReferee ? _refereePrice : 0);
+
+  // NUEVO: Genera un texto resumen con todo lo extra seleccionado
+  String get _extraDetails {
     List<String> details = [];
+    if (_wantsReferee) details.add('Árbitro Oficial');
     for (var item in _availableEquipment) {
       int qty = _selectedMaterials[item['name']] ?? 0;
       if (qty > 0) details.add('${qty}x ${item['name']}');
     }
-    return details.isEmpty ? "Sin material" : details.join(', ');
+    return details.isEmpty ? "Sin extras" : details.join(', ');
   }
-
-  // --- FIN LÓGICA MATERIAL ---
 
   Future<void> _loadCourtReservations() async {
     setState(() => _loadingReservations = true);
@@ -113,8 +118,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   bool get _currentSlotOccupied => _isSlotOccupied(_selectedDay, _selectedTime, _selectedHours);
 
-  // EL PRECIO TOTAL AHORA SUMA LA PISTA + MATERIAL
-  double get totalPrice => (widget.court.pricePerHour * _selectedHours) + _totalMaterialPrice;
+  // EL PRECIO TOTAL AHORA SUMA LA PISTA + TODOS LOS EXTRAS (Árbitro incluido)
+  double get totalPrice => (widget.court.pricePerHour * _selectedHours) + _totalExtrasPrice;
 
   String get _timeRange {
     try {
@@ -213,7 +218,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // --- NUEVO: ACORDEÓN DE MATERIAL ---
+                  // ACORDEÓN DE MATERIAL
                   Container(
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
                     child: Theme(
@@ -246,6 +251,24 @@ class _BookingScreenState extends State<BookingScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 12),
+
+                  // --- NUEVO: SELECTOR DE ÁRBITRO ---
+                  Container(
+                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+                    child: SwitchListTile(
+                      title: const Text('Solicitar Árbitro', style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B263B))),
+                      subtitle: const Text('Juega como un profesional (+15.00€)', style: TextStyle(color: Colors.green, fontSize: 12)),
+                      secondary: const Icon(Icons.sports, color: Color(0xFFF05B3A)),
+                      activeColor: const Color(0xFFF05B3A),
+                      value: _wantsReferee,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _wantsReferee = value;
+                        });
+                      },
+                    ),
+                  ),
                   const SizedBox(height: 20),
 
                   // RESUMEN
@@ -256,9 +279,10 @@ class _BookingScreenState extends State<BookingScreen> {
                       _summaryRow(Icons.calendar_today, 'Día', _selectedDay != null ? DateFormat('dd/MMM/yyyy').format(_selectedDay!) : '-'),
                       const Divider(height: 12),
                       _summaryRow(Icons.access_time, 'Horario', _timeRange),
-                      if (_totalMaterialPrice > 0) ...[
+                      if (_totalExtrasPrice > 0) ...[
                         const Divider(height: 12),
-                        _summaryRow(Icons.sports_tennis, 'Material', '+${_totalMaterialPrice.toStringAsFixed(2)} €'),
+                        // Cambié "Material" por "Extras" para que englobe ambos
+                        _summaryRow(Icons.add_shopping_cart, 'Extras', '+${_totalExtrasPrice.toStringAsFixed(2)} €'),
                       ],
                       const Divider(height: 12),
                       _summaryRow(Icons.payments, 'Coste Total', '${totalPrice.toStringAsFixed(2)} €', isTotal: true),
@@ -275,7 +299,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     ),
                   const SizedBox(height: 32),
 
-                  // BOTÓN RESERVAR (Le pasamos los detalles del material a la pasarela)
+                  // BOTÓN RESERVAR
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -286,7 +310,8 @@ class _BookingScreenState extends State<BookingScreen> {
                           time: _selectedTime,
                           duration: _selectedHours,
                           total: totalPrice,
-                          materialDetails: _materialDetails, // PASAMOS EL MATERIAL
+                          // Pasamos _extraDetails para que la pantalla de pago vea "Pelotas, Árbitro, etc"
+                          materialDetails: _extraDetails,
                         )));
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF05B3A), padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
@@ -308,7 +333,10 @@ class _BookingScreenState extends State<BookingScreen> {
       Icon(icon, size: 18, color: const Color(0xFF1B263B)), const SizedBox(width: 12),
       Text(label, style: TextStyle(color: isTotal ? const Color(0xFF1B263B) : Colors.grey, fontSize: 14, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal)),
       const Spacer(),
-      Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTotal ? 18 : 14, color: isTotal ? const Color(0xFFF05B3A) : const Color(0xFF1B263B))),
+      Expanded(
+        child: Text(value, textAlign: TextAlign.right, overflow: TextOverflow.ellipsis, maxLines: 2,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: isTotal ? 18 : 14, color: isTotal ? const Color(0xFFF05B3A) : const Color(0xFF1B263B))),
+      ),
     ]);
   }
 

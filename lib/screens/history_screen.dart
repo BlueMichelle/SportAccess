@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:app/models/models.dart';
 import 'package:app/screens/qr_screen.dart';
+import 'package:app/screens/live_match_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({Key? key}) : super(key: key);
@@ -140,58 +141,124 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final horaInicio = DateFormat('HH:mm').format(date);
         final price = (courtData['precioPorHora'] ?? 10.0).toDouble();
 
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            leading: CircleAvatar(
-              backgroundColor: isUpcoming ? const Color(0xFFF05B3A).withOpacity(0.1) : Colors.grey.shade100,
-              child: Icon(isUpcoming ? Icons.calendar_today : Icons.history, color: isUpcoming ? const Color(0xFFF05B3A) : Colors.grey),
-            ),
-            title: Text(courtName, style: const TextStyle(fontWeight: FontWeight.bold)),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text('${DateFormat('dd/MM/yyyy').format(date)} a las $horaInicio'),
-                const Text('Abonado', style: TextStyle(color: Color(0xFFF05B3A), fontWeight: FontWeight.bold)),
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isUpcoming)
-                  IconButton(
-                    icon: const Icon(Icons.qr_code, color: Color(0xFF1B263B)),
-                    onPressed: () {
-                      // FIX: Ya no usamos mockCourts. Creamos un objeto Court al vuelo con los datos de la reserva
-                      final courtObj = Court(
-                        id: courtData['id'].toString(),
-                        name: courtName,
-                        sports: [], // No lo necesitamos para el QR
-                        imageUrl: courtData['imagen_url'] ?? '',
-                        pricePerHour: price,
-                        location: courtData['ubicacion'] ?? '',
-                      );
+        // --- AQUÍ LEEMOS EL RESULTADO DE LA BASE DE DATOS ---
+        final String? resultado = res['resultadoPartido'];
 
-                      Navigator.push(context, MaterialPageRoute(builder: (_) => QRScreen(
-                        court: courtObj,
-                        date: date,
-                        time: horaInicio,
-                        total: price,
-                        uuid: res['qrToken'],
-                      )));
-                    },
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          clipBehavior: Clip.antiAlias, // IMPORTANTE: Mantiene los bordes redondeados con la franja azul
+          child: Column(
+            children: [
+              // --- FRANJA DEL RESULTADO (Solo se muestra si hay resultado) ---
+              if (resultado != null && resultado.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  color: const Color(0xFF1B263B), // Azul oscuro premium
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.emoji_events, color: Colors.amber, size: 18),
+                      const SizedBox(width: 8),
+                      Text(
+                        'RESULTADO: $resultado',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                      ),
+                    ],
                   ),
-                if (isUpcoming)
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red),
-                    onPressed: () => _cancelReservation(id),
-                  ),
-                if (!isUpcoming) const Icon(Icons.check_circle, color: Colors.green),
-              ],
-            ),
+                ),
+
+              // --- DATOS DE LA RESERVA ---
+              ListTile(
+                contentPadding: const EdgeInsets.all(16),
+                leading: CircleAvatar(
+                  backgroundColor: isUpcoming ? const Color(0xFFF05B3A).withOpacity(0.1) : Colors.grey.shade100,
+                  child: Icon(isUpcoming ? Icons.calendar_today : Icons.history, color: isUpcoming ? const Color(0xFFF05B3A) : Colors.grey),
+                ),
+                title: Text(courtName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text('${DateFormat('dd/MM/yyyy').format(date)} a las $horaInicio'),
+                    const Text('Abonado', style: TextStyle(color: Color(0xFFF05B3A), fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (isUpcoming)
+                      IconButton(
+                        icon: const Icon(Icons.qr_code, color: Color(0xFF1B263B)),
+                        onPressed: () {
+                          final courtObj = Court(
+                            id: courtData['id'].toString(),
+                            name: courtName,
+                            sports: [],
+                            imageUrl: courtData['imagen_url'] ?? '',
+                            pricePerHour: price,
+                            location: courtData['ubicacion'] ?? '',
+                          );
+
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => QRScreen(
+                            court: courtObj,
+                            date: date,
+                            time: horaInicio,
+                            total: price,
+                            uuid: res['qrToken'],
+                          )));
+                        },
+                      ),
+                    if (isUpcoming)
+                      IconButton(
+                        icon: const Icon(Icons.scoreboard, color: Colors.blueAccent),
+                        tooltip: 'Jugar Partido',
+                        onPressed: () async {
+                          // 1. Abrimos el marcador
+                          final resultado = await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => LiveMatchScreen(reservation: res))
+                          );
+
+                          // 2. Si hay resultado, lo enviamos a Spring Boot
+                          if (resultado != null) {
+                            try {
+                              final url = Uri.parse('http://10.0.2.2:8080/api/reservations/$id/resultado');
+                              final response = await http.put(
+                                url,
+                                headers: {'Content-Type': 'text/plain'}, // Para enviar el String puro
+                                body: resultado,
+                              );
+
+                              if (response.statusCode == 200) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('¡Resultado guardado!'), backgroundColor: Colors.green),
+                                );
+                                // 3. Recargamos la lista para que aparezca la franja arriba
+                                _cargarMisReservas();
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Error al guardar el resultado en el servidor'), backgroundColor: Colors.red),
+                                );
+                              }
+                            } catch (e) {
+                              print('Error enviando resultado: $e');
+                            }
+                          }
+                        },
+                      ),
+                    if (isUpcoming)
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        onPressed: () => _cancelReservation(id),
+                      ),
+                    if (!isUpcoming && (resultado == null || resultado.isEmpty))
+                      const Icon(Icons.check_circle, color: Colors.green),
+                  ],
+                ),
+              ),
+            ],
           ),
         );
       },

@@ -122,7 +122,16 @@ class ApiService {
       } catch (_) { return []; }
     }
   }
-
+  Future<bool> saveMatchResult(int id, String result) async {
+    try {
+      // Enviamos el string del resultado (ej: "15 - 10" o "2 - 1 Sets")
+      final response = await dio.put('/reservations/$id/resultado', data: result);
+      return response.statusCode == 200;
+    } catch (e) {
+      print('Error al guardar el marcador: $e');
+      return false;
+    }
+  }
   // 5. QR TOKEN
   Future<Map<String, dynamic>?> getReservationByQrToken(String token) async {
     try {

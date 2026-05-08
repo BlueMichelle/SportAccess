@@ -7,6 +7,12 @@ import 'package:app/screens/login_screen.dart';
 import 'package:app/services/api_service.dart';
 import 'package:app/screens/contact_screen.dart';
 import 'package:app/screens/report_incident_screen.dart';
+import 'package:app/screens/location_screen.dart'; // <-- NUEVO IMPORT DEL MAPA
+import 'package:app/screens/community_screen.dart';
+import 'package:app/screens/live_match_screen.dart';
+import 'package:app/screens/profile_screen.dart';
+
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -80,16 +86,14 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.qr_code_scanner, color: Color(0xFFF05B3A)),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ScannerScreen())),
           ),
+          // --- AQUÍ ESTÁ EL BOTÓN DE UBICACIÓN ACTUALIZADO ---
           IconButton(
             icon: const Icon(Icons.location_on, color: Color(0xFFF05B3A)),
+            tooltip: 'Nuestra Ubicación',
             onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Validación GPS'),
-                  content: const Text('Comprobando ubicación...'),
-                  actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('OK'))],
-                ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LocationScreen()),
               );
             },
           ),
@@ -188,7 +192,6 @@ class _HomeScreenState extends State<HomeScreen> {
               Hero(
                 tag: 'court-${court.id}',
                 child: Image.network(
-                  // FIX: Añadimos timestamp para forzar el refresco de la imagen y saltar la caché
                   "${court.imageUrl}?t=${DateTime.now().millisecondsSinceEpoch}",
                   fit: BoxFit.cover,
                   errorBuilder: (ctx, e, s) => Container(color: Colors.grey.shade300, child: const Icon(Icons.sports_tennis, size: 64, color: Colors.grey)),
@@ -251,6 +254,15 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: const BoxDecoration(color: Color(0xFF1B263B)),
           ),
           ListTile(
+              leading: const Icon(Icons.person, color: Colors.indigo),
+              title: const Text('Mi Perfil y Estadísticas', style: TextStyle(fontWeight: FontWeight.bold)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+              }
+          ),
+          const Divider(),
+          ListTile(
               leading: const Icon(Icons.history),
               title: const Text('Mis Reservas'),
               onTap: () {
@@ -278,15 +290,29 @@ class _HomeScreenState extends State<HomeScreen> {
               leading: const Icon(Icons.report_problem_outlined, color: Color(0xFFF05B3A)),
               title: const Text('Reportar Incidencia'),
               onTap: () {
-                Navigator.pop(context); // Esto cierra el menú para que no se quede abierto
+                Navigator.pop(context);
                 Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const ReportIncidentScreen())
                 );
               }
           ),
+          const Divider(), // Un separador para destacar la comunidad
+          ListTile(
+              leading: const Icon(Icons.people_alt, color: Colors.green),
+              title: const Text('Comunidad y Eventos', style: TextStyle(fontWeight: FontWeight.bold)),
+              subtitle: const Text('Partidas abiertas y torneos'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CommunityScreen())
+                );
+              }
+          ),
           const Spacer(),
           const Divider(),
+          // Nota: El botón de cerrar sesión ya lo tenías aquí abajo integrado en el menú lateral.
           ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Cerrar Sesión', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
