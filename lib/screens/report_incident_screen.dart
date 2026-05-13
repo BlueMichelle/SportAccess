@@ -1,16 +1,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+// ¡Adiós a la importación de firebase_storage!
 
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({Key? key}) : super(key: key);
 
   @override
   State<ReportIncidentScreen> createState() => _ReportIncidentScreenState();
-
 }
 
 class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
@@ -29,13 +28,14 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   // Seleccionar foto (Galería)
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 50);
+    // Bajamos un poco la calidad para que el texto Base64 no sea colosal y MySQL lo trague rápido
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 30);
     if (pickedFile != null) {
       setState(() => _selectedImage = File(pickedFile.path));
     }
   }
 
-  // Lógica de envío (Firebase + Spring Boot)
+  // Lógica de envío (Directo a Spring Boot)
   Future<void> _submitIncident() async {
     final description = _descriptionCtrl.text.trim();
 
@@ -51,64 +51,46 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
 
     setState(() => _isUploading = true);
 
-    String fileName = "incident_${DateTime.now().millisecondsSinceEpoch}.jpg";
-
     print("🚀 1. Botón pulsado. Empezando...");
-    print("🚀 Intentando subir a Firebase: incidents/$fileName");//nuevo
 
     try {
-
-      //❌❌❌❌❌❌❌ESTO ES LO QUE NO FUNCIONA
-
-      String downloadUrl = "";
-      final storage = FirebaseStorage.instanceFor(bucket: 'gs://sportaccess-76235.firebasestorage.app');
-      Reference ref = storage.ref().child("incidents/$fileName");
-
-      print("📡 Intentando conectar con Firebase Storage...");
-
-      // 1. SUBIDA CON TIEMPO LÍMITE (Esto evitará que gire siempre)
-      await ref.putFile(_selectedImage!).timeout(const Duration(seconds: 20), onTimeout: () {
-        throw 'TIEMPO_AGOTADO: Firebase no responde. Revisa el archivo google-services.json o tu conexión.';
-      });
-
-      print("📸 2. Foto subida con éxito");
-      downloadUrl = await ref.getDownloadURL();
-
-      downloadUrl = await ref.getDownloadURL();
-      print("🔗 3. URL obtenida de Firebase: $downloadUrl");
-
+      // 1. CONVERTIR LA FOTO A TEXTO (Base64)
+      print("📸 2. Convirtiendo foto a Base64...");
+      final bytes = await _selectedImage!.readAsBytes();
+      final base64Image = base64Encode(bytes);
+      print("✅ Foto convertida correctamente.");
 
       // 2. ENVIAR A SPRING BOOT (MySQL)
-      print("📡 4. Enviando datos al servidor Java...");
+      print("📡 3. Enviando datos al servidor Java...");
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8080/api/incidents'),
+        Uri.parse('http://10.0.2.2:8080/api/incidents'), // 10.0.2.2 es el localhost del emulador de Android
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
           "courtId": selectedCourtId,
-          "reportedById": 1,
+          "reportedById": 1, // Esto lo cambiarás más adelante por el ID del usuario logueado
           "descripcion": description,
-          "imagenUrl": downloadUrl
+          "imagenBase64": base64Image // ¡Aquí mandamos el texto kilométrico!
         }),
       );
 
-      print("🌍 5. Respuesta del servidor Java: ${response.statusCode}");
+      print("🌍 4. Respuesta del servidor Java: ${response.statusCode}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('✅ Incidencia enviada correctamente')),
           );
-          Navigator.pop(context);
+          Navigator.pop(context); // Vuelve a la pantalla anterior
         }
       } else {
         throw 'Error en el servidor Java (Código: ${response.statusCode})';
       }
 
     } catch (e) {
-      print("❌ ERROR DETALLADO: $e"); // ESTO ES LO QUE TIENES QUE MIRAR
+      print("❌ ERROR DETALLADO: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('❌ Error: $e'), backgroundColor: Colors.red),
+          SnackBar(content: Text('❌ Error al enviar: $e'), backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -134,7 +116,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 const Text('Incidencia técnica', style: TextStyle(fontSize: 16, color: Colors.grey)),
                 const SizedBox(height: 48),
 
-                // Contenedor de la Foto (Estilo de vuestras Cards)
+                // Contenedor de la Foto
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -162,7 +144,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Desplegable pintado en pantalla
+                // Desplegable de Pistas
                 DropdownButtonFormField<int>(
                   decoration: const InputDecoration(
                     labelText: 'Selecciona la instalación afectada',
@@ -183,7 +165,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Campo de descripción (Estilo igual a vuestro Login)
+                // Campo de descripción
                 TextField(
                   controller: _descriptionCtrl,
                   maxLines: 3,
@@ -195,7 +177,7 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Botón de Envío (Igual que vuestro botón ENTRAR)
+                // Botón de Envío
                 SizedBox(
                   width: double.infinity,
                   height: 48,
