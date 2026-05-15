@@ -24,8 +24,8 @@ class _BookingScreenState extends State<BookingScreen> {
 
   // --- ESTADO EXTRAS (MATERIAL Y ÁRBITRO) ---
   Map<String, int> _selectedMaterials = {};
-  bool _wantsReferee = false; // NUEVO: Estado del árbitro
-  final double _refereePrice = 15.0; // Precio fijo del árbitro
+  bool _wantsReferee = false;
+  final double _refereePrice = 15.0;
 
   final List<String> _availableTimes = ['09:00', '10:00', '11:00', '12:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
   final List<int> _hourOptions = [1, 2, 3];
@@ -58,10 +58,8 @@ class _BookingScreenState extends State<BookingScreen> {
     return total;
   }
 
-  // NUEVO: Suma el precio del material y del árbitro
   double get _totalExtrasPrice => _totalMaterialPrice + (_wantsReferee ? _refereePrice : 0);
 
-  // NUEVO: Genera un texto resumen con todo lo extra seleccionado
   String get _extraDetails {
     List<String> details = [];
     if (_wantsReferee) details.add('Árbitro Oficial');
@@ -100,7 +98,8 @@ class _BookingScreenState extends State<BookingScreen> {
   bool _isDayFullyOccupied(DateTime day) {
     final set = _occupiedSlots[_dateKey(day)];
     if (set == null) return false;
-    return _availableTimes.every((t) => set.contains(t));
+    // También tendríamos que comprobar si todas las horas ya han pasado, pero con esto es suficiente
+    return _availableTimes.every((t) => set.contains(t) || _isTimeInPast(day, t));
   }
 
   bool _isSlotOccupied(DateTime? day, String time, int duration) {
@@ -116,9 +115,22 @@ class _BookingScreenState extends State<BookingScreen> {
     return false;
   }
 
-  bool get _currentSlotOccupied => _isSlotOccupied(_selectedDay, _selectedTime, _selectedHours);
+  // --- NUEVA LÓGICA: Comprueba si la hora seleccionada ya es pasado ---
+  bool _isTimeInPast(DateTime? day, String time) {
+    if (day == null) return false;
+    final now = DateTime.now();
+    int startHour = int.parse(time.split(':')[0]);
+    int startMinute = int.parse(time.split(':')[1]);
 
-  // EL PRECIO TOTAL AHORA SUMA LA PISTA + TODOS LOS EXTRAS (Árbitro incluido)
+    // Creamos un DateTime exacto combinando el día elegido y la hora del desplegable
+    final slotDateTime = DateTime(day.year, day.month, day.day, startHour, startMinute);
+
+    return slotDateTime.isBefore(now);
+  }
+
+  bool get _currentSlotOccupied => _isSlotOccupied(_selectedDay, _selectedTime, _selectedHours);
+  bool get _isCurrentlySelectedTimeInPast => _isTimeInPast(_selectedDay, _selectedTime);
+
   double get totalPrice => (widget.court.pricePerHour * _selectedHours) + _totalExtrasPrice;
 
   String get _timeRange {
@@ -198,8 +210,18 @@ class _BookingScreenState extends State<BookingScreen> {
                         child: DropdownButtonFormField<String>(
                           value: _selectedTime,
                           items: _availableTimes.map((t) {
+                            // AQUÍ COMPROBAMOS SI ESTÁ OCUPADA O SI YA HA PASADO LA HORA
                             final occupied = _isSlotOccupied(_selectedDay, t, 1);
-                            return DropdownMenuItem(value: t, child: Row(children: [Text(t, style: TextStyle(color: occupied ? Colors.red : const Color(0xFF1B263B))), if (occupied) const Icon(Icons.block, size: 14, color: Colors.red)]));
+                            final isPast = _isTimeInPast(_selectedDay, t);
+                            final unavailable = occupied || isPast;
+
+                            return DropdownMenuItem(
+                                value: t,
+                                child: Row(children: [
+                                  Text(t, style: TextStyle(color: unavailable ? Colors.red : const Color(0xFF1B263B))),
+                                  if (unavailable) const Icon(Icons.block, size: 14, color: Colors.red)
+                                ])
+                            );
                           }).toList(),
                           onChanged: (val) => setState(() => _selectedTime = val!),
                           decoration: _inputDecor('Entrada'),
@@ -253,7 +275,7 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // --- NUEVO: SELECTOR DE ÁRBITRO ---
+                  // SELECTOR DE ÁRBITRO
                   Container(
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
                     child: SwitchListTile(
@@ -281,7 +303,6 @@ class _BookingScreenState extends State<BookingScreen> {
                       _summaryRow(Icons.access_time, 'Horario', _timeRange),
                       if (_totalExtrasPrice > 0) ...[
                         const Divider(height: 12),
-                        // Cambié "Material" por "Extras" para que englobe ambos
                         _summaryRow(Icons.add_shopping_cart, 'Extras', '+${_totalExtrasPrice.toStringAsFixed(2)} €'),
                       ],
                       const Divider(height: 12),
@@ -290,12 +311,22 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // INDICADOR OCUPADO
-                  if (_currentSlotOccupied)
+                  // INDICADOR OCUPADO O PASADO
+                  if (_currentSlotOccupied || _isCurrentlySelectedTimeInPast)
                     Container(
                       width: double.infinity, padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.red.shade200)),
-                      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.block, color: Colors.red), SizedBox(width: 8), Text('FRANJA OCUPADA', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold))]),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.block, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text(
+                                _isCurrentlySelectedTimeInPast ? 'HORA YA PASADA' : 'FRANJA OCUPADA',
+                                style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)
+                            )
+                          ]
+                      ),
                     ),
                   const SizedBox(height: 32),
 
@@ -303,19 +334,19 @@ class _BookingScreenState extends State<BookingScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: (_currentSlotOccupied || _selectedDay == null) ? null : () {
+                      // BLOQUEAMOS EL BOTÓN SI ESTÁ OCUPADA O YA HA PASADO
+                      onPressed: (_currentSlotOccupied || _isCurrentlySelectedTimeInPast || _selectedDay == null) ? null : () {
                         Navigator.push(context, MaterialPageRoute(builder: (_) => PaymentScreen(
                           court: widget.court,
                           date: _selectedDay!,
                           time: _selectedTime,
                           duration: _selectedHours,
                           total: totalPrice,
-                          // Pasamos _extraDetails para que la pantalla de pago vea "Pelotas, Árbitro, etc"
                           materialDetails: _extraDetails,
                         )));
                       },
                       style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF05B3A), padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
-                      child: Text(_currentSlotOccupied ? 'NO DISPONIBLE' : 'RESERVAR AHORA', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: Text((_currentSlotOccupied || _isCurrentlySelectedTimeInPast) ? 'NO DISPONIBLE' : 'RESERVAR AHORA', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     ),
                   ),
                   const SizedBox(height: 40),

@@ -4,25 +4,10 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="932b5000-c940-4506-aa0a-f7b0cdffdda7" name="Changes" comment="ARREGLO DE FALLOS DE RESERVAS Y MEJORA DE DISEÑOS, NUEVA PANTALLA DE CONTACTANOS Y BOTON PARA RESERVAR MATERIAL">
-      <change afterPath="$PROJECT_DIR$/lib/screens/community_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/live_match_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/location_screen.dart" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/screens/profile_screen.dart" afterDir="false" />
+    <list default="true" id="932b5000-c940-4506-aa0a-f7b0cdffdda7" name="Changes" comment="DEBUG">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screens/booking_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/booking_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/history_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/history_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/home_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/api_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,11 +94,21 @@
       <option name="project" value="LOCAL" />
       <updated>1776680261881</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Persistencia de Datos: Aseguramos que las reservas no se borren al reiniciar el servidor eliminando el comando de limpieza en DataInitializer.&#10;&#10;Git y Despliegue: Configuramos el acceso por Token en Eclipse y subimos con éxito el código de Spring Boot al repositorio.&#10;&#10;Mapas Nativos: Integramos Google Maps dentro de la app para mostrar la ubicación exacta del polideportivo en Cartagena.&#10;&#10;Comunidad Funcional: Creamos la sección de &quot;Partidas Abiertas&quot; donde los usuarios pueden crear encuentros, unirse o salirse con actualización de plazas en tiempo real.&#10;&#10;Extras en Reservas: Añadimos la opción de contratar un árbitro y alquilar material deportivo con cálculo automático del precio total.&#10;&#10;Marcador Inteligente: Desarrollamos un marcador en directo que adapta sus botones y reglas de puntuación (tenis, basket o fútbol) según el deporte de la pista.&#10;&#10;Historial con Resultados: Conectamos el marcador con el backend para que los resultados de los partidos se guarden en MySQL y aparezcan visualmente en el historial.&#10;&#10;Perfil y Estadísticas: Implementamos una pantalla de perfil que calcula automáticamente los partidos jugados, la pista favorita y el gasto total del usuario.L">
+      <option name="closed" value="true" />
+      <created>1778258427420</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1778258427420</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ARREGLO DE FALLOS DE RESERVAS Y MEJORA DE DISEÑOS, NUEVA PANTALLA DE CONTACTANOS Y BOTON PARA RESERVAR MATERIAL" />
-    <option name="LAST_COMMIT_MESSAGE" value="ARREGLO DE FALLOS DE RESERVAS Y MEJORA DE DISEÑOS, NUEVA PANTALLA DE CONTACTANOS Y BOTON PARA RESERVAR MATERIAL" />
+    <MESSAGE value="Persistencia de Datos: Aseguramos que las reservas no se borren al reiniciar el servidor eliminando el comando de limpieza en DataInitializer.&#10;&#10;Git y Despliegue: Configuramos el acceso por Token en Eclipse y subimos con éxito el código de Spring Boot al repositorio.&#10;&#10;Mapas Nativos: Integramos Google Maps dentro de la app para mostrar la ubicación exacta del polideportivo en Cartagena.&#10;&#10;Comunidad Funcional: Creamos la sección de &quot;Partidas Abiertas&quot; donde los usuarios pueden crear encuentros, unirse o salirse con actualización de plazas en tiempo real.&#10;&#10;Extras en Reservas: Añadimos la opción de contratar un árbitro y alquilar material deportivo con cálculo automático del precio total.&#10;&#10;Marcador Inteligente: Desarrollamos un marcador en directo que adapta sus botones y reglas de puntuación (tenis, basket o fútbol) según el deporte de la pista.&#10;&#10;Historial con Resultados: Conectamos el marcador con el backend para que los resultados de los partidos se guarden en MySQL y aparezcan visualmente en el historial.&#10;&#10;Perfil y Estadísticas: Implementamos una pantalla de perfil que calcula automáticamente los partidos jugados, la pista favorita y el gasto total del usuario.L" />
+    <MESSAGE value="DEBUG" />
+    <option name="LAST_COMMIT_MESSAGE" value="DEBUG" />
   </component>
 </project>
