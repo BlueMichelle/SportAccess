@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'admin_dashboard_screen.dart'; // Importamos el dashboard al que iremos
+import 'package:google_fonts/google_fonts.dart';
+import 'admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -12,82 +13,191 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   String _errorMessage = '';
+  bool _isLoading = false; // Le añadimos un pequeño efecto de carga
 
-  void _intentarLogin() {
+  void _intentarLogin() async {
+    setState(() {
+      _errorMessage = '';
+      _isLoading = true;
+    });
+
+    // Simulamos un pequeño tiempo de carga para que se vea más profesional
+    await Future.delayed(const Duration(milliseconds: 800));
+
     final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
 
-    // 🔒 Nuestro "Candado Sencillo" (Usuario y contraseña fijos de momento)
     if (email == 'admin@admin.com' && password == 'admin') {
-      // Si acierta, le abrimos la puerta y reemplazamos la pantalla
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+        );
+      }
     } else {
-      // Si falla, mostramos un error
-      setState(() {
-        _errorMessage = 'Correo o contraseña incorrectos';
-      });
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Usamos un fondo claro y sutil para que la tarjeta destaque
     return Scaffold(
-      backgroundColor: Colors.blueGrey[900], // Fondo oscuro corporativo
+      backgroundColor: const Color(0xFFF1F5F9),
       body: Center(
-        child: Card(
-          elevation: 8,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: SingleChildScrollView(
           child: Container(
-            width: 400, // Ancho fijo para que no ocupe toda la pantalla en PC
-            padding: const EdgeInsets.all(32.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Que la tarjeta ocupe solo lo necesario
-              children: [
-                const Text(
-                  'Acceso Administrador',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            width: 450, // Un poco más ancho para respirar mejor
+            padding: const EdgeInsets.all(40.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
                 ),
-                const SizedBox(height: 32),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // LOGO / ICONO
+                const Center(
+                  child: Icon(Icons.sports_score, size: 64, color: Color(0xFF1E293B)),
+                ),
+                const SizedBox(height: 16),
+
+                // TÍTULOS
+                Text(
+                  'PoliRent',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF1E293B),
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'Panel de Administración',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey[500],
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 40),
+
+                // INPUT EMAIL
                 TextField(
                   controller: _emailCtrl,
-                  decoration: const InputDecoration(
-                    labelText: 'Correo electrónico',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
+                  keyboardType: TextInputType.emailAddress,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: 'Correo electrónico',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
+                    prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFF1E293B), width: 1.5),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
+
+                // INPUT PASSWORD
                 TextField(
                   controller: _passwordCtrl,
-                  obscureText: true, // Oculta la contraseña con puntitos
-                  decoration: const InputDecoration(
-                    labelText: 'Contraseña',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.lock),
+                  obscureText: true,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: 'Contraseña',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey[400]),
+                    prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Color(0xFF1E293B), width: 1.5),
+                    ),
                   ),
-                  onSubmitted: (_) => _intentarLogin(), // Permite darle al Enter para entrar
+                  onSubmitted: (_) => _intentarLogin(),
                 ),
-                const SizedBox(height: 16),
-                // Mensaje de error (solo se muestra si _errorMessage no está vacío)
-                if (_errorMessage.isNotEmpty)
-                  Text(
-                    _errorMessage,
-                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
+                const SizedBox(height: 20),
+
+                // MENSAJE DE ERROR ANIMADO
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  height: _errorMessage.isNotEmpty ? 40 : 0,
+                  child: _errorMessage.isNotEmpty
+                      ? Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        _errorMessage,
+                        style: GoogleFonts.poppins(
+                          color: Colors.redAccent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  )
+                      : const SizedBox.shrink(),
+                ),
+
                 const SizedBox(height: 24),
+
+                // BOTÓN DE LOGIN
                 SizedBox(
-                  width: double.infinity, // El botón ocupa todo el ancho de la tarjeta
-                  height: 50,
+                  height: 56,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueGrey[900],
+                      backgroundColor: const Color(0xFF1E293B), // Azul oscuro corporativo
                       foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
-                    onPressed: _intentarLogin,
-                    child: const Text('ENTRAR', style: TextStyle(fontSize: 16, letterSpacing: 2)),
+                    onPressed: _isLoading ? null : _intentarLogin,
+                    child: _isLoading
+                        ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2.5,
+                      ),
+                    )
+                        : Text(
+                      'ENTRAR',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 2,
+                      ),
+                    ),
                   ),
                 ),
               ],
