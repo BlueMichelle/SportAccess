@@ -36,6 +36,13 @@ Este panel se conecta a una API RESTful desarrollada en **Java (Spring Boot)** y
 
 ---
 
+#### 18/05/2026
+
+* Modificación de admin_dashboard_screen.dart y login_screen.dart con una interfaz más profesional.
+* Creación de la carpeta widgets con sus respectivos archivos.
+* Falta por arreglar las reservas, incidencias, CRUD de usuarios...
+
+
 ## 📂 Estructura del Proyecto
 
 El código fuente sigue una arquitectura modular y limpia para separar las vistas completas de los componentes reutilizables:
