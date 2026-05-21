@@ -10,7 +10,7 @@ class PaymentScreen extends StatefulWidget {
   final String time;
   final int duration;
   final double total;
-  final String materialDetails; // NUEVO CAMPO RECIBIDO
+  final String materialDetails;
 
   const PaymentScreen({
     Key? key,
@@ -19,7 +19,7 @@ class PaymentScreen extends StatefulWidget {
     required this.time,
     required this.duration,
     required this.total,
-    required this.materialDetails, // AÑADIDO AL CONSTRUCTOR
+    required this.materialDetails,
   }) : super(key: key);
 
   @override
@@ -61,77 +61,120 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() => _isLoading = true);
 
     final timeList = widget.time.split(':');
-    final startDt = DateTime(widget.date.year, widget.date.month, widget.date.day, int.parse(timeList[0]), int.parse(timeList[1]));
+    final startDt = DateTime(widget.date.year, widget.date.month, widget.date.day,
+        int.parse(timeList[0]), int.parse(timeList[1]));
     final endDt = startDt.add(Duration(hours: widget.duration));
 
-    // --- NUEVO: AÑADIMOS EL MATERIAL AL PAYLOAD ---
     final Map<String, dynamic> payload = {
       "user": {
         "firebaseUid": loggedUserUid,
         "email": loggedUserEmail,
         "nombre": loggedUserName
       },
-      "court": { "id": int.tryParse(widget.court.id) ?? 1 },
+      "court": {"id": int.tryParse(widget.court.id) ?? 1},
       "fechaInicio": startDt.toIso8601String(),
       "fechaFin": endDt.toIso8601String(),
-      "detallesMaterial": widget.materialDetails, // SE ENVÍA A MYSQL
+      "detallesMaterial": widget.materialDetails,
     };
 
     final result = await ApiService().createReservation(payload);
 
     if (result != null && result['qrToken'] != null) {
       if (mounted) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => QRScreen(
-          court: widget.court,
-          date: widget.date,
-          time: widget.time,
-          total: widget.total,
-          uuid: result['qrToken'],
-        )));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (_) => QRScreen(
+                  court: widget.court,
+                  date: widget.date,
+                  time: widget.time,
+                  total: widget.total,
+                  uuid: result['qrToken'],
+                )));
       }
     } else {
       if (mounted) setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al conectar con la pasarela del Servidor. Verifica conexión.'), backgroundColor: Colors.red));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Error al conectar con la pasarela del Servidor. Verifica conexión.'),
+            backgroundColor: Colors.red));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFD),
-      appBar: AppBar(title: const Text('PASARELA DE PAGO', style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)), centerTitle: true),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: const Text('PASARELA DE PAGO',
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 1.2)),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // PASOS DEL PROCESO
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 24.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [_buildStep('1', 'Summary', true), _buildLine(true), _buildStep('2', 'Payment', true), _buildLine(false), _buildStep('3', 'Confirmed', false)],
+                children: [
+                  _buildStep('1', 'Summary', true, isDark),
+                  _buildLine(true),
+                  _buildStep('2', 'Payment', true, isDark),
+                  _buildLine(false),
+                  _buildStep('3', 'Confirmed', false, isDark),
+                ],
               ),
             ),
 
-            // TARJETA DE RESUMEN QUE AHORA MUESTRA EL MATERIAL SI LO HAY
+            // BANNER DE MATERIAL
             if (widget.materialDetails != "Sin material")
               Padding(
                 padding: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
                 child: Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(12), border: Border.all(color: Colors.green.shade200)),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
                   child: Row(
                     children: [
-                      const Icon(Icons.shopping_bag, color: Colors.green), const SizedBox(width: 8),
-                      Expanded(child: Text('Incluye: ${widget.materialDetails}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 13))),
+                      const Icon(Icons.shopping_bag, color: Colors.green),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Incluye: ${widget.materialDetails}',
+                          style: const TextStyle(
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13),
+                        ),
+                      ),
                     ],
                   ),
                 ),
               ),
 
+            // TARJETA DE PAGO
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 10))]),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 10),
+                  )
+                ],
+              ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Column(
@@ -145,14 +188,93 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Tarjeta Bancaria', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                              Row(children: [const Icon(Icons.credit_card, color: Color(0xFF1B263B), size: 30), const SizedBox(width: 8), Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)), child: const Text('VISA', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.blue))), const SizedBox(width: 4), Container(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2), decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(4)), child: const Text('MC', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.red)))])
+                              Text(
+                                'Tarjeta Bancaria',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Icon(Icons.credit_card,
+                                      color: colorScheme.onSurface, size: 30),
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: colorScheme.outline.withOpacity(0.4)),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text('VISA',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.blue)),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: colorScheme.outline.withOpacity(0.4)),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: const Text('MC',
+                                        style: TextStyle(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red)),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                           const SizedBox(height: 20),
-                          _buildField('Número de Tarjeta', _cardCtrl, '0000 0000 0000 0000', [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(16)]),
+                          _buildField(
+                            context,
+                            'Número de Tarjeta',
+                            _cardCtrl,
+                            '0000 0000 0000 0000',
+                            [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(16)
+                            ],
+                          ),
                           const SizedBox(height: 20),
-                          Row(children: [Expanded(child: _buildField('Caducidad', _expiryCtrl, 'MM/YY', [_ExpiryDateFormatter(), LengthLimitingTextInputFormatter(5)])), const SizedBox(width: 16), Expanded(child: _buildField('CVV', _cvvCtrl, '123', [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(3)]))]),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildField(
+                                  context,
+                                  'Caducidad',
+                                  _expiryCtrl,
+                                  'MM/YY',
+                                  [
+                                    _ExpiryDateFormatter(),
+                                    LengthLimitingTextInputFormatter(5)
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildField(
+                                  context,
+                                  'CVV',
+                                  _cvvCtrl,
+                                  '123',
+                                  [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                    LengthLimitingTextInputFormatter(3)
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -162,21 +284,49 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
 
             const SizedBox(height: 32),
+
+            // DATOS DE FACTURACIÓN
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Datos de Facturación', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)), const Divider(),
-                  _buildField('Nombre', _nameCtrl, 'Nombre', []), const SizedBox(height: 16),
-                  _buildField('Email', _emailCtrl, 'Email', []), const SizedBox(height: 16),
-                  _buildField('Dirección', _addressCtrl, 'Dirección Completa', []), const SizedBox(height: 32),
+                  Text(
+                    'Datos de Facturación',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                  const Divider(),
+                  _buildField(context, 'Nombre', _nameCtrl, 'Nombre', []),
+                  const SizedBox(height: 16),
+                  _buildField(context, 'Email', _emailCtrl, 'Email', []),
+                  const SizedBox(height: 16),
+                  _buildField(context, 'Dirección', _addressCtrl, 'Dirección Completa', []),
+                  const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _processPayment,
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF05B3A), padding: const EdgeInsets.symmetric(vertical: 18), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                      child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text('PAGAR ${widget.total.toStringAsFixed(2)}€', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF05B3A),
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
+                          : Text(
+                        'PAGAR ${widget.total.toStringAsFixed(2)}€',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -189,27 +339,101 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildField(String label, TextEditingController ctrl, String hint, List<TextInputFormatter> formatters) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)), const SizedBox(height: 8), TextField(controller: ctrl, inputFormatters: formatters, decoration: InputDecoration(hintText: hint, filled: true, fillColor: Colors.grey.shade50, border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)), enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade100))))]);
+  // Ahora recibe context para acceder al tema
+  Widget _buildField(
+      BuildContext context,
+      String label,
+      TextEditingController ctrl,
+      String hint,
+      List<TextInputFormatter> formatters,
+      ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextField(
+          controller: ctrl,
+          inputFormatters: formatters,
+          style: TextStyle(color: colorScheme.onSurface),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(color: colorScheme.onSurface.withOpacity(0.4)),
+            filled: true,
+            fillColor: isDark ? colorScheme.surfaceVariant : Colors.grey.shade50,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.2)),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
-  Widget _buildStep(String number, String label, bool isActive) {
-    return Column(children: [CircleAvatar(radius: 12, backgroundColor: isActive ? const Color(0xFFF05B3A) : Colors.grey.shade300, child: Text(number, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold))), const SizedBox(height: 4), Text(label, style: TextStyle(fontSize: 10, color: isActive ? Colors.black : Colors.grey))]);
+  Widget _buildStep(String number, String label, bool isActive, bool isDark) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 12,
+          backgroundColor: isActive ? const Color(0xFFF05B3A) : Colors.grey.shade400,
+          child: Text(number,
+              style: const TextStyle(
+                  color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 10,
+            color: isActive
+                ? (isDark ? Colors.white : Colors.black)
+                : Colors.grey,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildLine(bool active) {
-    return Container(width: 40, height: 2, color: active ? const Color(0xFFF05B3A) : Colors.grey.shade300, margin: const EdgeInsets.only(bottom: 12));
+    return Container(
+      width: 40,
+      height: 2,
+      color: active ? const Color(0xFFF05B3A) : Colors.grey.shade400,
+      margin: const EdgeInsets.only(bottom: 12),
+    );
   }
 }
 
 class _ExpiryDateFormatter extends TextInputFormatter {
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
     var newText = newValue.text;
     if (oldValue.text.length > newValue.text.length) return newValue;
     var selectionIndex = newValue.selection.end;
-    if (newText.length == 2) { newText += '/'; selectionIndex++; }
-    else if (newText.length == 3 && !newText.contains('/')) { newText = newText.substring(0, 2) + '/' + newText.substring(2); selectionIndex++; }
-    return TextEditingValue(text: newText, selection: TextSelection.collapsed(offset: selectionIndex));
+    if (newText.length == 2) {
+      newText += '/';
+      selectionIndex++;
+    } else if (newText.length == 3 && !newText.contains('/')) {
+      newText = newText.substring(0, 2) + '/' + newText.substring(2);
+      selectionIndex++;
+    }
+    return TextEditingValue(
+        text: newText, selection: TextSelection.collapsed(offset: selectionIndex));
   }
 }

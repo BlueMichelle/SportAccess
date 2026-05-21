@@ -4,10 +4,33 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="932b5000-c940-4506-aa0a-f7b0cdffdda7" name="Changes" comment="DEBUG">
+    <list default="true" id="932b5000-c940-4506-aa0a-f7b0cdffdda7" name="Changes" comment="He hecho el log in con google, he usado SendGrid para que cuando alguien reserve le envie un correo con la reserva, he puesto que se pueda editar la informacion de los usuarios y he aniadido el modo oscuro a toda la aplicacion">
       <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/google-services.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screens/booking_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/booking_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/community_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/community_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/contact_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/contact_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/history_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/history_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/home_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/location_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/location_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/payment_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/payment_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/profile_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/profile_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/qr_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/qr_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/report_incident_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/report_incident_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/services/api_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/api_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/windows/flutter/generated_plugins.cmake" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,7 +64,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/BlueMichelle/SportAccess.git&quot;,
-    &quot;accountId&quot;: &quot;86b9ebf1-a836-4e84-90d6-ba0798635683&quot;
+    &quot;accountId&quot;: &quot;5845d325-7ba3-4421-97ae-046ab259d155&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -65,15 +88,19 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/mobile-flutter&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;8a994d41&quot;,
     &quot;io.flutter.project.isFirstOpen&quot;: &quot;true&quot;,
     &quot;io.flutter.reload.alreadyRun&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/ProyectoFinalTFG/Frontend&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;dart.settings&quot;,
     &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;
   }
 }</component>
   <component name="RunManager">
-    <configuration name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter">
+    <configuration name="App" type="FlutterRunConfigurationType" factoryName="Flutter">
       <option name="filePath" value="$PROJECT_DIR$/lib/main.dart" />
       <method v="2" />
     </configuration>
@@ -109,6 +136,7 @@
     <MESSAGE value="ARREGLO DE FALLOS DE RESERVAS Y MEJORA DE DISEÑOS, NUEVA PANTALLA DE CONTACTANOS Y BOTON PARA RESERVAR MATERIAL" />
     <MESSAGE value="Persistencia de Datos: Aseguramos que las reservas no se borren al reiniciar el servidor eliminando el comando de limpieza en DataInitializer.&#10;&#10;Git y Despliegue: Configuramos el acceso por Token en Eclipse y subimos con éxito el código de Spring Boot al repositorio.&#10;&#10;Mapas Nativos: Integramos Google Maps dentro de la app para mostrar la ubicación exacta del polideportivo en Cartagena.&#10;&#10;Comunidad Funcional: Creamos la sección de &quot;Partidas Abiertas&quot; donde los usuarios pueden crear encuentros, unirse o salirse con actualización de plazas en tiempo real.&#10;&#10;Extras en Reservas: Añadimos la opción de contratar un árbitro y alquilar material deportivo con cálculo automático del precio total.&#10;&#10;Marcador Inteligente: Desarrollamos un marcador en directo que adapta sus botones y reglas de puntuación (tenis, basket o fútbol) según el deporte de la pista.&#10;&#10;Historial con Resultados: Conectamos el marcador con el backend para que los resultados de los partidos se guarden en MySQL y aparezcan visualmente en el historial.&#10;&#10;Perfil y Estadísticas: Implementamos una pantalla de perfil que calcula automáticamente los partidos jugados, la pista favorita y el gasto total del usuario.L" />
     <MESSAGE value="DEBUG" />
-    <option name="LAST_COMMIT_MESSAGE" value="DEBUG" />
+    <MESSAGE value="He hecho el log in con google, he usado SendGrid para que cuando alguien reserve le envie un correo con la reserva, he puesto que se pueda editar la informacion de los usuarios y he aniadido el modo oscuro a toda la aplicacion" />
+    <option name="LAST_COMMIT_MESSAGE" value="He hecho el log in con google, he usado SendGrid para que cuando alguien reserve le envie un correo con la reserva, he puesto que se pueda editar la informacion de los usuarios y he aniadido el modo oscuro a toda la aplicacion" />
   </component>
 </project>

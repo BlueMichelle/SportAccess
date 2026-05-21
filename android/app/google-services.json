@@ -12,7 +12,20 @@
           "package_name": "com.sportaccess.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "850902302916-gvaap51h45vje4qb5u4vhpqost0v57j1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sportaccess.app",
+            "certificate_hash": "d7b8bfc143e153e180763d7aac5acaa887f3770f"
+          }
+        },
+        {
+          "client_id": "850902302916-8v795hn3pbbpfjc93u4unipjljimie5r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCwfVLL5JnMxsH8UPoqNrsIBBd8_R1UU-c"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "850902302916-8v795hn3pbbpfjc93u4unipjljimie5r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

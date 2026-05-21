@@ -20,11 +20,16 @@ class _LocationScreenState extends State<LocationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      // ✅ Scaffold toma scaffoldBackgroundColor del tema automáticamente
       appBar: AppBar(
         title: const Text('Nuestra Ubicación', style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF1B263B),
+        // ✅ Fondo del AppBar adaptado al tema (era Colors.white)
+        backgroundColor: colorScheme.surface,
+        // ✅ Color de iconos y texto del AppBar adaptado al tema (era Color(0xFF1B263B))
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
       ),
       body: GoogleMap(

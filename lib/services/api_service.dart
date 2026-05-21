@@ -8,8 +8,8 @@ class ApiService {
 
   final Dio dio = Dio(BaseOptions(
     baseUrl: baseUrl,
-    connectTimeout: const Duration(seconds: 5), // Si en 5s no conecta, salta el error
-    receiveTimeout: const Duration(seconds: 3),
+    connectTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 15),
   ));
 
   // 1. OBTENER TODAS LAS PISTAS
@@ -29,9 +29,9 @@ class ApiService {
   }
 
   // 0a. REGISTRO
-  Future<Map<String, dynamic>?> registerUser(String email, String name) async {
+  Future<Map<String, dynamic>?> registerUser(String email, String name, {String? realUid}) async {
+    final fakeUid = realUid ?? 'fb_${email.replaceAll('@', '_').replaceAll('.', '_')}';
     try {
-      final fakeUid = 'fb_${email.replaceAll('@', '_').replaceAll('.', '_')}';
 
       mockRegisteredUsers.add({
         'email': email,
@@ -50,7 +50,13 @@ class ApiService {
       return response.data;
     } catch (e) {
       print('Error en registro: $e');
-      return null;
+      return {
+        'email': email,
+        'nombre': name.isEmpty ? 'Usuario' : name,
+        'firebaseUid': fakeUid,
+        'telefono': '000000000',
+        'rol': 'USER',
+      };
     }
   }
 

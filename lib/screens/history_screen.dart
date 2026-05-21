@@ -58,18 +58,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
         title: const Text('¿Cancelar Reserva?'),
         content: const Text('Esta acción liberará el horario y no se puede deshacer.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('NO')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('NO'),
+          ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              final url = Uri.parse('http://10.0.2.2:8080/api/reservations/$reservaId/cancel');
+              final url = Uri.parse(
+                  'http://10.0.2.2:8080/api/reservations/$reservaId/cancel');
               try {
                 final response = await http.put(url);
                 if (response.statusCode == 200) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Reserva cancelada correctamente')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Reserva cancelada correctamente')));
                   _cargarMisReservas();
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error al cancelar'), backgroundColor: Colors.red));
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Error al cancelar'),
+                      backgroundColor: Colors.red));
                 }
               } catch (e) {
                 print(e);
@@ -87,9 +94,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: const Color(0xFFF7FAFD),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text('Mis Reservas', style: TextStyle(fontWeight: FontWeight.bold)),
+          title: const Text('Mis Reservas',
+              style: TextStyle(fontWeight: FontWeight.bold)),
           bottom: const TabBar(
             tabs: [Tab(text: 'PRÓXIMAS'), Tab(text: 'ANTERIORES')],
             indicatorColor: Color(0xFFF05B3A),
@@ -98,7 +106,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ),
         body: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: Color(0xFFF05B3A)))
+            ? const Center(
+            child: CircularProgressIndicator(color: Color(0xFFF05B3A)))
             : TabBarView(
           children: [
             _buildFilteredList(isUpcoming: true),
@@ -110,7 +119,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
   }
 
   Widget _buildFilteredList({required bool isUpcoming}) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final now = DateTime.now();
+
     List<dynamic> displayedList = _misReservas.where((res) {
       final fechaFin = DateTime.parse(res['fechaFin']);
       return isUpcoming ? fechaFin.isAfter(now) : fechaFin.isBefore(now);
@@ -121,9 +133,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.event_busy, size: 64, color: Colors.grey.shade300),
+            Icon(Icons.event_busy,
+                size: 64,
+                color: isDark ? Colors.grey.shade600 : Colors.grey.shade300),
             const SizedBox(height: 16),
-            Text('No hay reservas aquí', style: TextStyle(color: Colors.grey.shade500)),
+            Text(
+              'No hay reservas aquí',
+              style: TextStyle(
+                  color: isDark ? Colors.grey.shade400 : Colors.grey.shade500),
+            ),
           ],
         ),
       );
@@ -140,49 +158,70 @@ class _HistoryScreenState extends State<HistoryScreen> {
         final DateTime date = DateTime.parse(res['fechaInicio']);
         final horaInicio = DateFormat('HH:mm').format(date);
         final price = (courtData['precioPorHora'] ?? 10.0).toDouble();
-
-        // --- AQUÍ LEEMOS EL RESULTADO DE LA BASE DE DATOS ---
         final String? resultado = res['resultadoPartido'];
 
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          clipBehavior: Clip.antiAlias, // IMPORTANTE: Mantiene los bordes redondeados con la franja azul
+          shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          clipBehavior: Clip.antiAlias,
           child: Column(
             children: [
-              // --- FRANJA DEL RESULTADO (Solo se muestra si hay resultado) ---
+              // FRANJA DEL RESULTADO
               if (resultado != null && resultado.isNotEmpty)
                 Container(
                   width: double.infinity,
-                  color: const Color(0xFF1B263B), // Azul oscuro premium
+                  // Color fijo decorativo, queda bien en ambos temas
+                  color: const Color(0xFF1B263B),
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.emoji_events, color: Colors.amber, size: 18),
+                      const Icon(Icons.emoji_events,
+                          color: Colors.amber, size: 18),
                       const SizedBox(width: 8),
                       Text(
                         'RESULTADO: $resultado',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, letterSpacing: 1.1),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.1),
                       ),
                     ],
                   ),
                 ),
 
-              // --- DATOS DE LA RESERVA ---
+              // DATOS DE LA RESERVA
               ListTile(
                 contentPadding: const EdgeInsets.all(16),
                 leading: CircleAvatar(
-                  backgroundColor: isUpcoming ? const Color(0xFFF05B3A).withOpacity(0.1) : Colors.grey.shade100,
-                  child: Icon(isUpcoming ? Icons.calendar_today : Icons.history, color: isUpcoming ? const Color(0xFFF05B3A) : Colors.grey),
+                  backgroundColor: isUpcoming
+                      ? const Color(0xFFF05B3A).withOpacity(0.1)
+                      : isDark
+                      ? colorScheme.surfaceVariant
+                      : Colors.grey.shade100,
+                  child: Icon(
+                    isUpcoming ? Icons.calendar_today : Icons.history,
+                    color: isUpcoming ? const Color(0xFFF05B3A) : Colors.grey,
+                  ),
                 ),
-                title: Text(courtName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                title: Text(courtName,
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface)),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 4),
-                    Text('${DateFormat('dd/MM/yyyy').format(date)} a las $horaInicio'),
-                    const Text('Abonado', style: TextStyle(color: Color(0xFFF05B3A), fontWeight: FontWeight.bold)),
+                    Text(
+                      '${DateFormat('dd/MM/yyyy').format(date)} a las $horaInicio',
+                      style:
+                      TextStyle(color: colorScheme.onSurface.withOpacity(0.7)),
+                    ),
+                    const Text('Abonado',
+                        style: TextStyle(
+                            color: Color(0xFFF05B3A),
+                            fontWeight: FontWeight.bold)),
                   ],
                 ),
                 trailing: Row(
@@ -190,7 +229,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   children: [
                     if (isUpcoming)
                       IconButton(
-                        icon: const Icon(Icons.qr_code, color: Color(0xFF1B263B)),
+                        icon: Icon(Icons.qr_code,
+                            color: colorScheme.onSurface),
                         onPressed: () {
                           final courtObj = Court(
                             id: courtData['id'].toString(),
@@ -200,46 +240,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             pricePerHour: price,
                             location: courtData['ubicacion'] ?? '',
                           );
-
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => QRScreen(
-                            court: courtObj,
-                            date: date,
-                            time: horaInicio,
-                            total: price,
-                            uuid: res['qrToken'],
-                          )));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => QRScreen(
+                                    court: courtObj,
+                                    date: date,
+                                    time: horaInicio,
+                                    total: price,
+                                    uuid: res['qrToken'],
+                                  )));
                         },
                       ),
                     if (isUpcoming)
                       IconButton(
-                        icon: const Icon(Icons.scoreboard, color: Colors.blueAccent),
+                        icon: const Icon(Icons.scoreboard,
+                            color: Colors.blueAccent),
                         tooltip: 'Jugar Partido',
                         onPressed: () async {
-                          // 1. Abrimos el marcador
                           final resultado = await Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (_) => LiveMatchScreen(reservation: res))
-                          );
+                              MaterialPageRoute(
+                                  builder: (_) =>
+                                      LiveMatchScreen(reservation: res)));
 
-                          // 2. Si hay resultado, lo enviamos a Spring Boot
                           if (resultado != null) {
                             try {
-                              final url = Uri.parse('http://10.0.2.2:8080/api/reservations/$id/resultado');
+                              final url = Uri.parse(
+                                  'http://10.0.2.2:8080/api/reservations/$id/resultado');
                               final response = await http.put(
                                 url,
-                                headers: {'Content-Type': 'text/plain'}, // Para enviar el String puro
+                                headers: {'Content-Type': 'text/plain'},
                                 body: resultado,
                               );
-
                               if (response.statusCode == 200) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('¡Resultado guardado!'), backgroundColor: Colors.green),
+                                  const SnackBar(
+                                      content: Text('¡Resultado guardado!'),
+                                      backgroundColor: Colors.green),
                                 );
-                                // 3. Recargamos la lista para que aparezca la franja arriba
                                 _cargarMisReservas();
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Error al guardar el resultado en el servidor'), backgroundColor: Colors.red),
+                                  const SnackBar(
+                                      content: Text(
+                                          'Error al guardar el resultado en el servidor'),
+                                      backgroundColor: Colors.red),
                                 );
                               }
                             } catch (e) {
@@ -250,7 +296,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
                     if (isUpcoming)
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: Colors.red),
+                        icon: const Icon(Icons.delete_outline,
+                            color: Colors.red),
                         onPressed: () => _cancelReservation(id),
                       ),
                     if (!isUpcoming && (resultado == null || resultado.isEmpty))

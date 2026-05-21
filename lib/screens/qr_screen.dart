@@ -21,9 +21,10 @@ class QRScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usamos el UUID pasado desde el proceso de pago
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      // ✅ Scaffold toma scaffoldBackgroundColor del tema automáticamente
       appBar: AppBar(title: const Text('Confirmación')),
       body: Center(
         child: SingleChildScrollView(
@@ -33,30 +34,67 @@ class QRScreen extends StatelessWidget {
             children: [
               const Icon(Icons.check_circle, color: Colors.green, size: 64),
               const SizedBox(height: 16),
-              const Text('¡Pago completado con éxito!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+              const Text(
+                '¡Pago completado con éxito!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 32),
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  // ✅ Fondo de la tarjeta adaptado al tema (era Colors.white)
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                  boxShadow: [
+                    BoxShadow(
+                      // ✅ Sombra adaptada al tema
+                      color: colorScheme.shadow.withOpacity(0.08),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    Text(court.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text(
+                      court.name,
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
                     const SizedBox(height: 8),
-                    Text('${DateFormat('dd/MM/yyyy').format(date)} a las $time', style: const TextStyle(color: Colors.grey)),
+                    // ✅ Color del subtítulo de fecha adaptado al tema (era Colors.grey)
+                    Text(
+                      '${DateFormat('dd/MM/yyyy').format(date)} a las $time',
+                      style: TextStyle(color: colorScheme.onSurface.withOpacity(0.6)),
+                    ),
                     const SizedBox(height: 24),
+                    // ✅ QR con fondo y color de primer plano adaptados al tema
                     QrImageView(
                       data: uuid,
                       version: QrVersions.auto,
                       size: 200.0,
+                      backgroundColor: colorScheme.surface,
+                      eyeStyle: QrEyeStyle(
+                        eyeShape: QrEyeShape.square,
+                        color: colorScheme.onSurface,
+                      ),
+                      dataModuleStyle: QrDataModuleStyle(
+                        dataModuleShape: QrDataModuleShape.square,
+                        color: colorScheme.onSurface,
+                      ),
                     ),
                     const SizedBox(height: 16),
-                    const Text('Escanea este QR en la pista para acceder', textAlign: TextAlign.center),
+                    const Text(
+                      'Escanea este QR en la pista para acceder',
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 8),
-                    Text('ID: $uuid', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    // ✅ Color del ID adaptado al tema (era Colors.grey)
+                    Text(
+                      'ID: $uuid',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -66,7 +104,7 @@ class QRScreen extends StatelessWidget {
                   Navigator.of(context).popUntil((route) => route.isFirst);
                 },
                 child: const Text('Volver al Inicio'),
-              )
+              ),
             ],
           ),
         ),
