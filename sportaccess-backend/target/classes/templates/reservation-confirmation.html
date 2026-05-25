@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Reserva</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .header {
+            background-color: #1e3a8a; /* Azul oscuro corporativo */
+            color: #ffffff;
+            text-align: center;
+            padding: 30px 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .details-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #64748b;
+        }
+        .detail-value {
+            font-weight: 500;
+            color: #0f172a;
+        }
+        .qr-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #cbd5e1;
+        }
+        .qr-code {
+            background-color: #f1f5f9;
+            padding: 15px;
+            display: inline-block;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #334155;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        .footer {
+            background-color: #f8fafc;
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #94a3b8;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SportAccess</h1>
+            <p style="margin-top: 10px; opacity: 0.9;">¡Reserva Confirmada!</p>
+        </div>
+        
+        <div class="content">
+            <div class="greeting">
+                Hola <strong th:text="${nombre}">Usuario</strong>,
+            </div>
+            <p>Tu reserva ha sido procesada con éxito. Aquí tienes los detalles de tu acceso:</p>
+            
+            <div class="details-box">
+                <div class="detail-row">
+                    <span class="detail-label">Pista / Instalación:</span>
+                    <span class="detail-value" th:text="${pista}">Pista de Tenis 1</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Fecha:</span>
+                    <span class="detail-value" th:text="${fecha}">20/05/2026</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Hora:</span>
+                    <span class="detail-value">
+                        <span th:text="${horaInicio}">10:00</span> - <span th:text="${horaFin}">11:30</span>
+                    </span>
+                </div>
+            </div>
+            
+            <div class="qr-section">
+                <p>Presenta este código en el acceso de las instalaciones:</p>
+                <div class="qr-code">
+                    <span th:text="${qrToken}">QR_123456789</span>
+                </div>
+                <p style="font-size: 13px; color: #64748b; margin-top: 15px;">
+                    * En la aplicación móvil podrás ver este código en formato QR escaneable.
+                </p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Gracias por usar SportAccess.</p>
+            <p>Si tienes alguna duda, contacta con nuestro soporte.</p>
+        </div>
+    </div>
+</body>
+</html>
