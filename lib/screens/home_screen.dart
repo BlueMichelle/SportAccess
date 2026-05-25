@@ -31,6 +31,14 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadCourts();
   }
 
+  // ✨ FUNCIÓN MÁGICA DE NAVEGACIÓN: Al volver de cualquier pantalla, refresca las pistas
+  void _navigateTo(Widget screen) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => screen),
+    ).then((_) => _loadCourts()); // El .then se ejecuta SÓLO cuando el usuario vuelve a la Home
+  }
+
   Future<void> _loadCourts() async {
     try {
       setState(() => _isLoading = true);
@@ -70,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final matchesSearch = court.name.toLowerCase().contains(queryLower) ||
           court.location.toLowerCase().contains(queryLower);
       final matchesSport = _selectedSport == 'Todos' || court.sports.contains(_selectedSport);
-      return matchesSearch && matchesSport;
+      return matchesSearch && matchesSport && court.isActive;
     }).toList();
 
     return Scaffold(
@@ -89,26 +97,20 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner, color: Color(0xFFF05B3A)),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ScannerScreen())),
+            onPressed: () => _navigateTo(const ScannerScreen()),
           ),
           IconButton(
             icon: const Icon(Icons.location_on, color: Color(0xFFF05B3A)),
             tooltip: 'Nuestra Ubicación',
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const LocationScreen()),
-            ),
+            onPressed: () => _navigateTo(const LocationScreen()),
           ),
           IconButton(
             icon: const Icon(Icons.history, color: Color(0xFFF05B3A)),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryScreen())),
+            onPressed: () => _navigateTo(const HistoryScreen()),
           ),
           IconButton(
             icon: const Icon(Icons.report_problem_outlined, color: Color(0xFFF05B3A)),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ReportIncidentScreen()),
-            ),
+            onPressed: () => _navigateTo(const ReportIncidentScreen()),
           ),
         ],
       ),
@@ -175,18 +177,29 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: Color(0xFFF05B3A)))
-                : filteredCourts.isEmpty
-                ? Center(
-              child: Text(
-                'No hay pistas disponibles',
-                style: TextStyle(color: colorScheme.onSurface),
+                : RefreshIndicator( // ✨ AÑADIMOS EL REFRESH INDICATOR
+              color: const Color(0xFFF05B3A),
+              onRefresh: _loadCourts, // Llama a la API al deslizar
+              child: filteredCourts.isEmpty
+                  ? ListView( // Usamos ListView para que permita deslizar aunque esté vacío
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                  Center(
+                    child: Text(
+                      'No hay pistas disponibles',
+                      style: TextStyle(color: colorScheme.onSurface),
+                    ),
+                  ),
+                ],
+              )
+                  : ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(), // Obligatorio para poder deslizar
+                padding: const EdgeInsets.all(16),
+                itemCount: filteredCourts.length,
+                itemBuilder: (context, index) =>
+                    _buildPremiumCourtCard(context, filteredCourts[index]),
               ),
-            )
-                : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: filteredCourts.length,
-              itemBuilder: (context, index) =>
-                  _buildPremiumCourtCard(context, filteredCourts[index]),
             ),
           ),
         ],
@@ -306,7 +319,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(fontSize: 24.0, color: Color(0xFFF05B3A)),
               ),
             ),
-            // Usamos el color secondary del tema (azul oscuro en claro, naranja en oscuro)
             decoration: BoxDecoration(color: colorScheme.secondary),
           ),
           ListTile(
@@ -314,9 +326,8 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Mi Perfil y Estadísticas',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
+              Navigator.pop(context); // Cierra el menú lateral
+              _navigateTo(const ProfileScreen()); // Abre la pantalla y refresca al volver
             },
           ),
           const Divider(),
@@ -325,8 +336,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Mis Reservas'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => const HistoryScreen()));
+              _navigateTo(const HistoryScreen());
             },
           ),
           ListTile(
@@ -334,8 +344,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Escanear Acceso'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => const ScannerScreen()));
+              _navigateTo(const ScannerScreen());
             },
           ),
           ListTile(
@@ -343,8 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Contacto y FAQ'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (_) => const ContactScreen()));
+              _navigateTo(const ContactScreen());
             },
           ),
           ListTile(
@@ -352,8 +360,7 @@ class _HomeScreenState extends State<HomeScreen> {
             title: const Text('Reportar Incidencia'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const ReportIncidentScreen()));
+              _navigateTo(const ReportIncidentScreen());
             },
           ),
           const Divider(),
@@ -364,8 +371,7 @@ class _HomeScreenState extends State<HomeScreen> {
             subtitle: const Text('Partidas abiertas y torneos'),
             onTap: () {
               Navigator.pop(context);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const CommunityScreen()));
+              _navigateTo(const CommunityScreen());
             },
           ),
           const Spacer(),

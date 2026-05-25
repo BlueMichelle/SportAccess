@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:app/models/models.dart';
+import 'package:app/services/api_service.dart';
 
 class ReportIncidentScreen extends StatefulWidget {
   const ReportIncidentScreen({Key? key}) : super(key: key);
@@ -16,13 +18,36 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
   File? _selectedImage;
   bool _isUploading = false;
 
-  int? selectedCourtId;
-  final List<Map<String, dynamic>> _courts = [
-    {"id": 1, "nombre": "Pista 1 (Fútbol)"},
-    {"id": 2, "nombre": "Pista 2 (Pádel)"},
-    {"id": 3, "nombre": "Pista 3 (Tenis)"},
-    {"id": 4, "nombre": "Pista 4 (Baloncesto)"},
-  ];
+  bool _isLoadingCourts = true;
+  // ✨ CORRECCIÓN 1: Ahora espera un String en lugar de un int
+  String? selectedCourtId;
+  List<Court> _courts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCourts();
+  }
+
+  Future<void> _loadCourts() async {
+    try {
+      final apiCourts = await ApiService().getCourts();
+      if (mounted) {
+        setState(() {
+          _courts = apiCourts;
+          _isLoadingCourts = false;
+        });
+      }
+    } catch (e) {
+      print('❌ Error al cargar las pistas para el reporte: $e');
+      if (mounted) {
+        setState(() => _isLoadingCourts = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al cargar la lista de instalaciones')),
+        );
+      }
+    }
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -56,7 +81,8 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
         Uri.parse('http://10.0.2.2:8080/api/incidents'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "courtId": selectedCourtId,
+          // ✨ CORRECCIÓN 4: Convertimos el String a número para Java
+          "courtId": int.parse(selectedCourtId!),
           "reportedById": 1,
           "descripcion": description,
           "imagenBase64": base64Image,
@@ -106,7 +132,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // TÍTULO
                 Text(
                   'REPORTAR',
                   style: TextStyle(
@@ -121,7 +146,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 ),
                 const SizedBox(height: 48),
 
-                // CONTENEDOR DE LA FOTO
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
@@ -160,8 +184,13 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // DESPLEGABLE DE PISTAS
-                DropdownButtonFormField<int>(
+                // ✨ CORRECCIÓN 2: El Dropdown ahora usa <String>
+                _isLoadingCourts
+                    ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: CircularProgressIndicator(color: Color(0xFFF05B3A)),
+                )
+                    : DropdownButtonFormField<String>(
                   decoration: InputDecoration(
                     labelText: 'Selecciona la instalación afectada',
                     border: const OutlineInputBorder(),
@@ -170,19 +199,19 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                   ),
                   dropdownColor: isDark ? colorScheme.surfaceVariant : null,
                   value: selectedCourtId,
-                  items: _courts.map((court) {
-                    return DropdownMenuItem<int>(
-                      value: court['id'],
-                      child: Text(court['nombre']),
+                  items: _courts.map((Court court) {
+                    // ✨ CORRECCIÓN 3: Los items también usan <String> y se les pasa el ID tal cual
+                    return DropdownMenuItem<String>(
+                      value: court.id,
+                      child: Text(court.name),
                     );
                   }).toList(),
-                  onChanged: (int? newValue) {
+                  onChanged: (String? newValue) {
                     setState(() => selectedCourtId = newValue);
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // CAMPO DE DESCRIPCIÓN
                 TextField(
                   controller: _descriptionCtrl,
                   maxLines: 3,
@@ -197,7 +226,6 @@ class _ReportIncidentScreenState extends State<ReportIncidentScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // BOTÓN DE ENVÍO
                 SizedBox(
                   width: double.infinity,
                   height: 48,

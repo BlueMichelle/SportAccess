@@ -8,6 +8,7 @@ class Court {
   final String imageUrl;
   final double pricePerHour;
   final String location;
+  final bool isActive;
 
   Court({
     required this.id,
@@ -16,6 +17,7 @@ class Court {
     required this.imageUrl,
     required this.pricePerHour,
     required this.location,
+    required this.isActive,
   });
 
   factory Court.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,21 @@ class Court {
       else dbUrl = 'https://images.unsplash.com/photo-1505666287802-931dc83948e9?q=80&w=800';
     }
 
+    bool pistaActiva = true;
+    if (json.containsKey('activa') && json['activa'] != null) {
+      var valor = json['activa'];
+
+      // Imprimimos por consola lo que está llegando realmente para investigar
+      print('🎾 DEBUG - Pista: ${json['nombre']} | Valor "activa": $valor | Tipo: ${valor.runtimeType}');
+
+      // Si llega como booleano false, como número 0, o como texto "0" o "false", la apagamos
+      if (valor == false || valor == 0 || valor == '0' || valor.toString().toLowerCase() == 'false') {
+        pistaActiva = false;
+      }
+    } else {
+      print('🎾 DEBUG - Pista: ${json['nombre']} | El campo "activa" NO llega en el JSON o es null');
+    }
+
     return Court(
       id: json['id'].toString(),
       name: json['nombre'] ?? 'Instalación',
@@ -38,6 +55,7 @@ class Court {
       imageUrl: dbUrl,
       pricePerHour: (json['precioPorHora'] ?? 0).toDouble(),
       location: json['descripcion'] ?? 'Polideportivo',
+      isActive: pistaActiva,
     );
   }
 }

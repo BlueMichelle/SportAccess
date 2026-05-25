@@ -239,6 +239,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             imageUrl: courtData['imagen_url'] ?? '',
                             pricePerHour: price,
                             location: courtData['ubicacion'] ?? '',
+                            isActive: true,
                           );
                           Navigator.push(
                               context,
