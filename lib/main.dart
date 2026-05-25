@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
-import 'screens/login_screen.dart'; // Importamos tu pantalla de login
+import 'package:firebase_core/firebase_core.dart'; // ✨ Importamos core de Firebase
+import 'firebase_options.dart'; // ✨ Archivo generado por FlutterFire con tus claves
+import 'screens/login_screen.dart';
 
-void main() {
+void main() async {
+  // ✨ Estas dos líneas son OBLIGATORIAS para que Firebase arranque antes de dibujar la pantalla
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const SportAccessWeb());
 }
 
