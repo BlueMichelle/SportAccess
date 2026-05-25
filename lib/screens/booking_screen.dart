@@ -200,7 +200,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 tag: 'court-${widget.court.id}',
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
-                  child: Image.network(
+                  child: Image.asset(
                     widget.court.imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (ctx, e, s) => Container(
