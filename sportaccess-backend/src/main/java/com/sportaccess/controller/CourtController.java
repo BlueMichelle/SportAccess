@@ -52,5 +52,18 @@ public class CourtController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}")
+    public org.springframework.http.ResponseEntity<Court> updateCourt(@PathVariable Long id, @RequestBody Court courtDetails) {
+        return courtRepository.findById(id).map(court -> {
+            court.setNombre(courtDetails.getNombre());
+            court.setPrecioPorHora(courtDetails.getPrecioPorHora());
+            court.setDescripcion(courtDetails.getDescripcion());
+            court.setImagenUrl(courtDetails.getImagenUrl());
+            court.setActiva(courtDetails.getActiva());
+            court.setTipo(courtDetails.getTipo());
+            return org.springframework.http.ResponseEntity.ok(courtRepository.save(court));
+        }).orElse(org.springframework.http.ResponseEntity.notFound().build());
+    }
+
 }
 

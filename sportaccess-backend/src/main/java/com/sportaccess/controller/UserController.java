@@ -73,5 +73,29 @@ public class UserController {
         userRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    // Actualizamos el nombre (este sí es String, así que mantenemos el isEmpty)
+                    if (userDetails.getNombre() != null && !userDetails.getNombre().isEmpty()) {
+                        user.setNombre(userDetails.getNombre());
+                    }
+
+                    // Actualizamos el rol (solo comprobamos que no sea nulo)
+                    if (userDetails.getRol() != null) {
+                        user.setRol(userDetails.getRol());
+                    }
+                    // Actualizamos el telefono
+                    if (userDetails.getTelefono() != null && !userDetails.getTelefono().isEmpty()) {
+                        user.setTelefono(userDetails.getTelefono());
+                    }
+
+                    User updatedUser = userRepository.save(user);
+                    return ResponseEntity.ok(updatedUser);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
 

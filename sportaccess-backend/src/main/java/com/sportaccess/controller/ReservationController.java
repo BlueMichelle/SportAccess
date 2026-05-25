@@ -93,6 +93,11 @@ public class ReservationController {
             Court court = courtRepository.findById(courtId)
                     .orElseThrow(() -> new RuntimeException("Pista no encontrada"));
 
+            if (!court.getActiva()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("Lo sentimos, esta pista está inactiva y no se puede reservar.");
+            }
+
             // D) CONSTRUIR Y GUARDAR RESERVA
             Reservation nuevaReserva = new Reservation();
             nuevaReserva.setCourt(court);
