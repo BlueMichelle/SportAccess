@@ -4,7 +4,7 @@ import '../widgets/home_view.dart'; // 🔴 Importamos la nueva vista
 import '../widgets/courts_view.dart';
 import '../widgets/incidents_view.dart';
 import '../widgets/users_view.dart';
-import '../widgets/reservations_view.dart';
+import '../widgets/reservations/reservations_view.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({Key? key}) : super(key: key);

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'admin_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,32 +15,82 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   String _errorMessage = '';
-  bool _isLoading = false; // Le añadimos un pequeño efecto de carga
+  bool _isLoading = false;
 
   void _intentarLogin() async {
-    setState(() {
-      _errorMessage = '';
-      _isLoading = true;
-    });
-
-    // Simulamos un pequeño tiempo de carga para que se vea más profesional
-    await Future.delayed(const Duration(milliseconds: 800));
-
     final email = _emailCtrl.text.trim();
     final password = _passwordCtrl.text.trim();
 
-    if (email == 'admin@admin.com' && password == 'admin') {
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
-        );
+    if (email.isEmpty || password.isEmpty) {
+      setState(() => _errorMessage = 'Por favor, rellena ambos campos.');
+      return;
+    }
+
+    setState(() {
+      _errorMessage = '';
+    });
+
+    try {
+      // Pedimos a Spring Boot TODOS los usuarios de tu base de datos
+      final url = Uri.parse('http://localhost:8080/api/users');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> allUsers = jsonDecode(utf8.decode(response.bodyBytes));
+
+        bool userFound = false;
+        bool isAdmin = false;
+
+        // Buscamos si el correo existe y si tiene rol ADMIN
+        for (var user in allUsers) {
+          if (user['email'] == email) {
+            userFound = true;
+            final String rolUsuario = user['rol'] ?? 'USER';
+            if (rolUsuario.toUpperCase() == 'ADMIN') {
+              isAdmin = true;
+            }
+            break;
+          }
+        }
+
+        // Si el usuario existe, es ADMIN, y escribe la contraseña maestra "admin"
+        if (userFound && isAdmin) {
+          if (password == 'admin') {
+            if (mounted) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AdminDashboardScreen()),
+              );
+            }
+          } else {
+            if (mounted) {
+              setState(() {
+                _errorMessage = 'Contraseña incorrecta.';
+                _isLoading = false;
+              });
+            }
+          }
+        } else {
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'Acceso denegado. Usuario no encontrado o sin permisos.';
+              _isLoading = false;
+            });
+          }
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Error del servidor: ${response.statusCode}';
+            _isLoading = false;
+          });
+        }
       }
-    } else {
+    } catch (e) {
       if (mounted) {
         setState(() {
+          _errorMessage = 'Error de conexión. ¿Está Spring Boot encendido?';
           _isLoading = false;
-          _errorMessage = 'Credenciales incorrectas. Inténtalo de nuevo.';
         });
       }
     }
@@ -46,13 +98,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Usamos un fondo claro y sutil para que la tarjeta destaque
     return Scaffold(
       backgroundColor: const Color(0xFFF1F5F9),
       body: Center(
         child: SingleChildScrollView(
           child: Container(
-            width: 450, // Un poco más ancho para respirar mejor
+            width: 450,
             padding: const EdgeInsets.all(40.0),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -69,13 +120,10 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // LOGO / ICONO
                 const Center(
                   child: Icon(Icons.sports_score, size: 64, color: Color(0xFF1E293B)),
                 ),
                 const SizedBox(height: 16),
-
-                // TÍTULOS
                 Text(
                   'PoliRent',
                   textAlign: TextAlign.center,
@@ -97,7 +145,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 40),
 
-                // INPUT EMAIL
                 TextField(
                   controller: _emailCtrl,
                   keyboardType: TextInputType.emailAddress,
@@ -120,7 +167,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // INPUT PASSWORD
                 TextField(
                   controller: _passwordCtrl,
                   obscureText: true,
@@ -144,7 +190,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // MENSAJE DE ERROR ANIMADO
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 300),
                   height: _errorMessage.isNotEmpty ? 40 : 0,
@@ -153,27 +198,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const Icon(Icons.error_outline, color: Colors.redAccent, size: 20),
                       const SizedBox(width: 8),
-                      Text(
-                        _errorMessage,
-                        style: GoogleFonts.poppins(
-                          color: Colors.redAccent,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
+                      Expanded(
+                        child: Text(
+                          _errorMessage,
+                          style: GoogleFonts.poppins(
+                            color: Colors.redAccent,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
                   )
                       : const SizedBox.shrink(),
                 ),
-
                 const SizedBox(height: 24),
 
-                // BOTÓN DE LOGIN
                 SizedBox(
                   height: 56,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E293B), // Azul oscuro corporativo
+                      backgroundColor: const Color(0xFF1E293B),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
