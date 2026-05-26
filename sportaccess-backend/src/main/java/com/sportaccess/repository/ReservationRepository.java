@@ -48,4 +48,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("courtId") Long courtId,
             @Param("desde") LocalDateTime desde,
             @Param("hasta") LocalDateTime hasta);
+
+    // Busca las reservas que ocurran entre el inicio y el fin de un día concreto
+    List<Reservation> findByFechaInicioBetween(LocalDateTime inicio, LocalDateTime fin);
 }

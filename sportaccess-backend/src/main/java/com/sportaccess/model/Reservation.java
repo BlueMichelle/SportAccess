@@ -12,7 +12,7 @@ public class Reservation {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @ManyToOne
@@ -21,7 +21,7 @@ public class Reservation {
 
     @Column(nullable = false)
     private LocalDateTime fechaInicio;
-    
+
     @Column(name = "resultado_partido")
     private String resultadoPartido;
 
@@ -34,7 +34,7 @@ public class Reservation {
 
     @Column(name = "qr_token")
     private String qrToken;
-    
+
     @Column(name = "precio_material")
     private Double precioMaterial = 0.0;
 
@@ -43,6 +43,18 @@ public class Reservation {
 
     @Column(name = "email_contacto")
     private String emailContacto;
+
+    // ✨ NUEVO: Para jugar siendo invitados
+    @Column(name = "nombre_invitado")
+    private String nombreInvitado;
+
+    // ✨ NUEVO: Para los pagos (ej: "TARJETA" o "EFECTIVO")
+    @Column(name = "metodo_pago")
+    private String metodoPago = "TARJETA";
+
+    // ✨ NUEVO: Estado del pago (ej: "PAGADO" o "PENDIENTE")
+    @Column(name = "estado_pago")
+    private String estadoPago = "PAGADO";
 
     // Estados posibles de la reserva
     public enum ReservationStatus {
@@ -56,7 +68,6 @@ public class Reservation {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    // Getter y setter
     public String getEmailContacto() { return emailContacto; }
     public void setEmailContacto(String emailContacto) { this.emailContacto = emailContacto; }
 
@@ -77,17 +88,23 @@ public class Reservation {
 
     public String getQrToken() { return qrToken; }
     public void setQrToken(String qrToken) { this.qrToken = qrToken; }
+
     public Double getPrecioMaterial() { return precioMaterial; }
     public void setPrecioMaterial(Double precioMaterial) { this.precioMaterial = precioMaterial; }
 
     public String getDetallesMaterial() { return detallesMaterial; }
     public void setDetallesMaterial(String detallesMaterial) { this.detallesMaterial = detallesMaterial; }
-    
-    public String getResultadoPartido() {
-        return resultadoPartido;
-    }
 
-    public void setResultadoPartido(String resultadoPartido) {
-        this.resultadoPartido = resultadoPartido;
-    }
+    public String getResultadoPartido() { return resultadoPartido; }
+    public void setResultadoPartido(String resultadoPartido) { this.resultadoPartido = resultadoPartido; }
+
+    // --- NUEVOS GETTERS Y SETTERS ---
+    public String getNombreInvitado() { return nombreInvitado; }
+    public void setNombreInvitado(String nombreInvitado) { this.nombreInvitado = nombreInvitado; }
+
+    public String getMetodoPago() { return metodoPago; }
+    public void setMetodoPago(String metodoPago) { this.metodoPago = metodoPago; }
+
+    public String getEstadoPago() { return estadoPago; }
+    public void setEstadoPago(String estadoPago) { this.estadoPago = estadoPago; }
 }
