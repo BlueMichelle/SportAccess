@@ -16,9 +16,6 @@ El servidor fue interrumpido porque recibía una excepción de **"Access denied"
 *   **Contraseña de MySQL:** Actualizada a la contraseña correcta local.
 *   **Dialecto de Hibernate:** Se cambió `org.hibernate.dialect.MySQL8Dialect` por el más genérico `org.hibernate.dialect.MySQLDialect` para asegurar la retrocompatibilidad con las distintas versiones (como MySQL 9.5).
 
-### 3. Arranque del Servidor (Backend)
-Debido a que el comando de Maven original no estaba en el entorno configurado, **descargamos directamente los binarios de Apache Maven 3.9.15** y compilamos/arrancamos la aplicación desde allí directamente.
-
 ---
 
 ## Cómo levantar este proyecto en adelante

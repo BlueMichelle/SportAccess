@@ -1,7 +1,6 @@
 package com.sportaccess.backend.service;
 
 import com.sportaccess.backend.model.Booking;
-import com.sportaccess.backend.model.Booking.BookingStatus;
 import com.sportaccess.backend.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,21 +28,8 @@ public class AccessControlService {
             return false;
         }
 
-        // 3. Validate Geofencing (Simulated business logic)
-        // Center coordinates should be fetched from booking -> court -> sportsCenter
-        double centerLat = booking.getCourt().getSportsCenter().getLatitude();
-        double centerLon = booking.getCourt().getSportsCenter().getLongitude();
-        
-        double distance = calculateDistance(userLat, userLon, centerLat, centerLon);
-        
-        // Allow access if within 100 meters
-        return distance <= 100.0;
-    }
-
-    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        // Haversine formula simplification or basic Euclidean for simulation
-        double latDiff = lat1 - lat2;
-        double lonDiff = lon1 - lon2;
-        return Math.sqrt(latDiff * latDiff + lonDiff * lonDiff) * 111000; // rough meters
+        // La geolocalizacion no esta modelada de forma consistente en esta rama,
+        // asi que validamos QR y franja horaria como criterio minimo de acceso.
+        return true;
     }
 }

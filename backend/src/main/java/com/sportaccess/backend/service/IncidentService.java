@@ -16,8 +16,8 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
 
     public Incident reportIncident(Incident incident) {
-        incident.setReportedAt(LocalDateTime.now());
-        incident.setStatus(IncidentStatus.OPEN);
+        incident.setFechaReporte(LocalDateTime.now());
+        incident.setEstado(IncidentStatus.ABIERTA);
         return incidentRepository.save(incident);
     }
 
@@ -28,7 +28,7 @@ public class IncidentService {
     public Incident updateIncidentStatus(Long id, IncidentStatus status) {
         Incident incident = incidentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Incident not found"));
-        incident.setStatus(status);
+        incident.setEstado(status);
         return incidentRepository.save(incident);
     }
 }

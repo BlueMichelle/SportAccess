@@ -2,9 +2,16 @@ package com.sportaccess.backend.repository;
 
 import com.sportaccess.backend.model.Incident;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 import java.util.List;
 
+@Repository
 public interface IncidentRepository extends JpaRepository<Incident, Long> {
-    List<Incident> findByUserId(Long userId);
-    List<Incident> findByStatus(Incident.IncidentStatus status);
+
+    List<Incident> findByCourtId(Long courtId);
+
+    List<Incident> findByEstado(Incident.IncidentStatus estado);
+
+    List<Incident> findByReportadoPorId(Long userId);
 }

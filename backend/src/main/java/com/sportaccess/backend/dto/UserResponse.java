@@ -24,10 +24,10 @@ public class UserResponse {
     public static UserResponse from(User user) {
         return UserResponse.builder()
                 .id(user.getId())
-                .name(user.getName())
+                .name(user.getNombre())
                 .email(user.getEmail())
                 .telefono(user.getTelefono())
-                .role(user.getRole())
+                .role(user.getRol())
                 .fechaRegistro(user.getFechaRegistro())
                 .activo(user.getActivo())
                 .build();

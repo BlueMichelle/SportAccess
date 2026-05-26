@@ -4,7 +4,56 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="932b5000-c940-4506-aa0a-f7b0cdffdda7" name="Changes" comment="" />
+    <list default="true" id="932b5000-c940-4506-aa0a-f7b0cdffdda7" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README_CONFIG.md" beforeDir="false" afterPath="$PROJECT_DIR$/README_CONFIG.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/BackendApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/BackendApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/config/DataInitializer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/config/DataInitializer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/config/FirebaseConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/config/FirebaseConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/config/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/config/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/BookingController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/BookingController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/CourtController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/CourtController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/HomeController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/HomeController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/IncidentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/IncidentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/SportsCenterController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/SportsCenterController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/dto/IncidentRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/dto/IncidentRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/dto/UserResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/dto/UserResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/dto/UserUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/dto/UserUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/exception/ErrorResponse.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/exception/ErrorResponse.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/exception/UserNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/exception/UserNotFoundException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Booking.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Booking.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Court.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Court.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Incident.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Incident.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Payment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/Payment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/SportsCenter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/SportsCenter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/BookingRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/BookingRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/CourtRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/CourtRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/IncidentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/IncidentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/PaymentRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/PaymentRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/SportsCenterRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/SportsCenterRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/security/FirebaseTokenFilter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/security/FirebaseTokenFilter.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/AccessControlService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/AccessControlService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/BookingService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/BookingService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/IncidentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/IncidentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/PaymentService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/sportaccess/backend/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/linux/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/linux/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/linux/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/linux/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/linux/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/linux/flutter/generated_plugins.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/macos/Flutter/GeneratedPluginRegistrant.swift" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/macos/Flutter/GeneratedPluginRegistrant.swift" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/windows/flutter/generated_plugin_registrant.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/windows/flutter/generated_plugin_registrant.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/windows/flutter/generated_plugin_registrant.h" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/windows/flutter/generated_plugin_registrant.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../mobile/windows/flutter/generated_plugins.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/../mobile/windows/flutter/generated_plugins.cmake" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -13,10 +62,13 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "customColor": "",
-  "associatedIndex": 1
-}]]></component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 1
+}</component>
   <component name="ProjectId" id="38A6GzZ7shFpQacT2EhKZhZ7iCW" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -27,9 +79,14 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
     "cf.first.check.clang-format": "false",
-    "cidr.known.project.marker": "true"
+    "cidr.known.project.marker": "true",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "feature/db-qa-devops",
+    "last_opened_file_path": "C:/Users/miche/OneDrive/Escritorio/ProyectoFinal_PoliRect/backend",
+    "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
   <component name="TaskManager">

@@ -31,16 +31,15 @@ public class UserService {
         return userRepository.findByFirebaseUid(uid)
                 .map(existingUser -> {
                     existingUser.setEmail(email);
-                    existingUser.setName(finalName);
+                    existingUser.setNombre(finalName);
                     return userRepository.save(existingUser);
                 })
                 .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .firebaseUid(uid)
-                            .email(email)
-                            .name(finalName)
-                            .role(User.Role.CLIENT)
-                            .build();
+                    User newUser = new User();
+                    newUser.setFirebaseUid(uid);
+                    newUser.setEmail(email);
+                    newUser.setNombre(finalName);
+                    newUser.setRol(User.Role.USER);
                     return userRepository.save(newUser);
                 });
     }
@@ -73,7 +72,7 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
 
         if (dto.getName() != null && !dto.getName().isBlank()) {
-            user.setName(dto.getName());
+            user.setNombre(dto.getName());
         }
         if (dto.getTelefono() != null) {
             user.setTelefono(dto.getTelefono());
@@ -85,7 +84,7 @@ public class UserService {
     public UserResponse changeRole(Long id, User.Role newRole) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
-        user.setRole(newRole);
+        user.setRol(newRole);
         return UserResponse.from(userRepository.save(user));
     }
 

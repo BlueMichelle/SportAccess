@@ -1,40 +1,53 @@
 package com.sportaccess.backend.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "incidents")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Incident {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id")
+    private Reservation reservation;
 
-    @ManyToOne
-    @JoinColumn(name = "court_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "court_id", nullable = false)
     private Court court;
 
-    @Column(nullable = false)
-    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reported_by", nullable = false)
+    private User reportadoPor;
 
-    private String imageUrl; // Firebase Storage URL
+    @Column(nullable = false, length = 500)
+    private String descripcion;
 
-    private LocalDateTime reportedAt;
+    // URL de la imagen en Firebase Storage
+    private String imagenUrl;
 
     @Enumerated(EnumType.STRING)
-    private IncidentStatus status;
+    @Column(nullable = false)
+    private IncidentStatus estado = IncidentStatus.ABIERTA;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime fechaReporte = LocalDateTime.now();
+
+    private LocalDateTime fechaResolucion;
+
+    private String notasResolucion;
 
     public enum IncidentStatus {
-        OPEN, IN_PROGRESS, RESOLVED, CLOSED
+        ABIERTA, EN_PROCESO, RESUELTA
     }
 }

@@ -32,3 +32,19 @@ firebase-service-account.json
 # ── Sistema operativo ─────────────────────────────
 .DS_Store
 Thumbs.db
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/android/app/local.properties
+mobile/**/.gradle/
+
+# Generated desktop plugin registrants
+mobile/linux/flutter/generated_plugin_registrant.*
+mobile/linux/flutter/generated_plugins.cmake
+mobile/macos/Flutter/GeneratedPluginRegistrant.swift
+mobile/windows/flutter/generated_plugin_registrant.*
+mobile/windows/flutter/generated_plugins.cmake

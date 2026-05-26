@@ -21,16 +21,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-/**
- * Filtro JWT que valida el token Firebase en cada petición.
- * - Token válido: sincroniza el usuario en BD y establece el contexto de seguridad.
- * - Token inválido/expirado: responde 401 con cuerpo JSON descriptivo.
- * - Sin token: deja pasar al siguiente filtro (rutas públicas permitidas por SecurityConfig).
- * Responsable: Miembro 1 – T-02
- */
 public class FirebaseTokenFilter extends OncePerRequestFilter {
 
     private static final Logger log = LoggerFactory.getLogger(FirebaseTokenFilter.class);
@@ -61,18 +54,19 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
             User user = userService.syncUser(decodedToken);
 
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    user, null,
-                    Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+                    user,
+                    null,
+                    List.of(new SimpleGrantedAuthority("ROLE_" + user.getRol().name()))
+            );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(request, response);
-
         } catch (FirebaseAuthException e) {
-            log.warn("Token Firebase inválido o expirado: {}", e.getMessage());
-            sendUnauthorizedResponse(response, request, "Token inválido o expirado");
+            log.warn("Token Firebase invalido o expirado: {}", e.getMessage());
+            sendUnauthorizedResponse(response, request, "Token invalido o expirado");
         } catch (Exception e) {
             log.error("Error inesperado al validar el token Firebase: {}", e.getMessage(), e);
-            sendUnauthorizedResponse(response, request, "Error de autenticación");
+            sendUnauthorizedResponse(response, request, "Error de autenticacion");
         }
     }
 

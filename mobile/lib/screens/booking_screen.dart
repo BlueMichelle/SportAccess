@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:app/models/models.dart' hide isSameDay;
 import 'package:app/screens/payment_screen.dart';
 import 'package:app/services/api_service.dart';
+import 'package:app/main.dart';
 
 class BookingScreen extends StatefulWidget {
   final Court court;
@@ -14,17 +15,16 @@ class BookingScreen extends StatefulWidget {
 }
 
 class _BookingScreenState extends State<BookingScreen> {
-  DateTime _focusedDay = DateTime.now();
+  DateTime _focusedDay   = DateTime.now();
   DateTime? _selectedDay = DateTime.now();
-  int _selectedHours = 1;
-  String _selectedTime = '18:00';
+  int _selectedHours     = 1;
+  String _selectedTime   = '18:00';
   bool _loadingReservations = true;
 
-  // Franjas ocupadas: Map<"yyyy-MM-dd", Set<"HH:00">>
   Map<String, Set<String>> _occupiedSlots = {};
 
-  final List<String> _availableTimes = ['09:00', '10:00', '11:00', '12:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
-  final List<int> _hourOptions = [1, 2, 3];
+  final List<String> _availableTimes  = ['09:00','10:00','11:00','12:00','16:00','17:00','18:00','19:00','20:00','21:00'];
+  final List<int>    _hourOptions     = [1, 2, 3];
 
   @override
   void initState() {
@@ -38,13 +38,12 @@ class _BookingScreenState extends State<BookingScreen> {
     final Map<String, Set<String>> slots = {};
     for (var r in reservations) {
       try {
-        final inicio = DateTime.parse(r['fechaInicio']);
-        final dateKey = DateFormat('yyyy-MM-dd').format(inicio);
-        final timeKey = '${inicio.hour.toString().padLeft(2, '0')}:00';
+        final inicio   = DateTime.parse(r['fechaInicio']);
+        final dateKey  = DateFormat('yyyy-MM-dd').format(inicio);
+        final timeKey  = '${inicio.hour.toString().padLeft(2,'0')}:00';
         slots.putIfAbsent(dateKey, () => <String>{}).add(timeKey);
       } catch (_) {}
     }
-    // También bloquear reservas locales (mockReservations) del usuario actual
     for (var r in mockReservations) {
       if (r['courtName'] == widget.court.name && r['date'] is DateTime) {
         final dateKey = DateFormat('yyyy-MM-dd').format(r['date'] as DateTime);
@@ -59,9 +58,7 @@ class _BookingScreenState extends State<BookingScreen> {
 
   bool _isDayFullyOccupied(DateTime day) {
     final set = _occupiedSlots[_dateKey(day)];
-    if (set == null) return false;
-    // Si todas las horas disponibles están ocupadas
-    return _availableTimes.every((t) => set.contains(t));
+    return set != null && _availableTimes.every((t) => set.contains(t));
   }
 
   bool _isSlotOccupied(DateTime? day, String time) {
@@ -70,42 +67,41 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   bool get _currentSlotOccupied => _isSlotOccupied(_selectedDay, _selectedTime);
-
   double get totalPrice => widget.court.pricePerHour * _selectedHours;
 
   String get _timeRange {
     try {
-      final hour = int.parse(_selectedTime.split(':')[0]);
+      final hour    = int.parse(_selectedTime.split(':')[0]);
       final endHour = hour + _selectedHours;
-      return '$_selectedTime a ${endHour.toString().padLeft(2, '0')}:00';
+      return '$_selectedTime a ${endHour.toString().padLeft(2,'0')}:00';
     } catch (e) { return _selectedTime; }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFD),
+      backgroundColor: kBg,
       appBar: AppBar(
-        title: const Text('Configurar Reserva', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: kCard,
+        title: const Text('Configurar Reserva'),
         actions: [
           if (_loadingReservations)
             const Padding(
               padding: EdgeInsets.only(right: 16),
-              child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF05B3A)))),
+              child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: kPrimary))),
             )
           else
-            IconButton(icon: const Icon(Icons.refresh), onPressed: _loadCourtReservations, tooltip: 'Actualizar disponibilidad'),
+            IconButton(icon: const Icon(Icons.refresh, color: kTextSec), onPressed: _loadCourtReservations, tooltip: 'Actualizar disponibilidad'),
         ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Imagen arriba a pantalla completa
+            // ── Imagen ────────────────────────────────────────────────────
             Container(
               margin: const EdgeInsets.all(16),
-              height: 160,
+              height: 170,
               width: double.infinity,
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
               child: Hero(
                 tag: 'court-${widget.court.id}',
                 child: ClipRRect(
@@ -113,27 +109,20 @@ class _BookingScreenState extends State<BookingScreen> {
                   child: Image.network(
                     widget.court.imageUrl,
                     fit: BoxFit.cover,
-                    loadingBuilder: (ctx, child, p) => p == null ? child : Container(color: const Color(0xFFEEF2F7), child: const Center(child: CircularProgressIndicator(color: Color(0xFFF05B3A), strokeWidth: 2))),
-                    errorBuilder: (ctx, e, s) => Container(
-                      color: const Color(0xFFEEF2F7),
-                      child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                        Icon(Icons.sports_tennis, size: 48, color: Color(0xFFF05B3A)),
-                        SizedBox(height: 8),
-                        Text('Instalación', style: TextStyle(color: Colors.grey)),
-                      ]),
-                    ),
+                    loadingBuilder: (ctx, child, p) => p == null ? child : Container(color: kSurface, child: const Center(child: CircularProgressIndicator(color: kPrimary, strokeWidth: 2))),
+                    errorBuilder: (ctx, e, s) => Container(color: kSurface, child: const Column(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(Icons.sports_tennis, size: 48, color: kPrimary), SizedBox(height: 8), Text('Instalación', style: TextStyle(color: kTextSec))])),
                   ),
                 ),
               ),
             ),
 
-            // Calendario completo y bien visible
+            // ── Calendario ────────────────────────────────────────────────
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: kCard,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.06), blurRadius: 12)],
+                border: Border.all(color: kBorder),
               ),
               child: TableCalendar(
                 firstDay: DateTime.now(),
@@ -149,34 +138,31 @@ class _BookingScreenState extends State<BookingScreen> {
                 headerStyle: const HeaderStyle(
                   formatButtonVisible: false,
                   titleCentered: true,
-                  titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1B263B)),
-                  leftChevronIcon: Icon(Icons.chevron_left, color: Color(0xFFF05B3A)),
-                  rightChevronIcon: Icon(Icons.chevron_right, color: Color(0xFFF05B3A)),
+                  titleTextStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: kTextPri),
+                  leftChevronIcon:  Icon(Icons.chevron_left,  color: kPrimary),
+                  rightChevronIcon: Icon(Icons.chevron_right, color: kPrimary),
+                  headerPadding: EdgeInsets.symmetric(vertical: 8),
                 ),
                 daysOfWeekStyle: const DaysOfWeekStyle(
-                  weekdayStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1B263B)),
-                  weekendStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFFF05B3A)),
+                  weekdayStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: kTextSec),
+                  weekendStyle: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: kPrimary),
                 ),
                 calendarStyle: CalendarStyle(
-                  defaultTextStyle: const TextStyle(fontSize: 15, color: Color(0xFF1B263B)),
-                  weekendTextStyle: const TextStyle(fontSize: 15, color: Color(0xFFF05B3A)),
-                  outsideTextStyle: const TextStyle(fontSize: 15, color: Colors.grey),
-                  todayTextStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFFF05B3A)),
-                  todayDecoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFF05B3A), width: 1.5),
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: const BoxDecoration(color: Color(0xFFF05B3A), shape: BoxShape.circle),
-                  selectedTextStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
-                  markerDecoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                  markersMaxCount: 1,
+                  defaultTextStyle:  const TextStyle(fontSize: 15, color: kTextPri),
+                  weekendTextStyle:  const TextStyle(fontSize: 15, color: kPrimary),
+                  outsideTextStyle:  const TextStyle(fontSize: 15, color: kBorder),
+                  todayTextStyle:    const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: kPrimary),
+                  todayDecoration:   BoxDecoration(border: Border.all(color: kPrimary, width: 1.5), shape: BoxShape.circle),
+                  selectedDecoration: const BoxDecoration(color: kPrimary, shape: BoxShape.circle),
+                  selectedTextStyle:  const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                  markerDecoration:   const BoxDecoration(color: Color(0xFFF85149), shape: BoxShape.circle),
+                  markersMaxCount:    1,
+                  disabledTextStyle:  const TextStyle(color: kBorder),
                 ),
-                // Marcamos con punto rojo los días con al menos una franja ocupada
                 eventLoader: (day) {
                   final key = _dateKey(day);
                   return _occupiedSlots.containsKey(key) ? [true] : [];
                 },
-                // Deshabilitar días completamente ocupados
                 enabledDayPredicate: (day) => !_isDayFullyOccupied(day),
               ),
             ),
@@ -188,23 +174,26 @@ class _BookingScreenState extends State<BookingScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.court.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1B263B))),
-                  Text(widget.court.location, style: const TextStyle(color: Colors.grey)),
+                  Text(widget.court.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: kTextPri)),
+                  const SizedBox(height: 4),
+                  Text(widget.court.location, style: const TextStyle(color: kTextSec)),
                   const SizedBox(height: 20),
 
-                  // Selector de hora y duración
+                  // ── Selectores hora / duración ────────────────────────
                   Row(
                     children: [
                       Expanded(
                         child: DropdownButtonFormField<String>(
                           value: _selectedTime,
+                          dropdownColor: kSurface,
+                          style: const TextStyle(color: kTextPri),
                           items: _availableTimes.map((t) {
                             final occupied = _isSlotOccupied(_selectedDay, t);
                             return DropdownMenuItem(
                               value: t,
                               child: Row(children: [
-                                Text(t, style: TextStyle(color: occupied ? Colors.red : const Color(0xFF1B263B))),
-                                if (occupied) ...[const SizedBox(width: 4), const Icon(Icons.block, size: 14, color: Colors.red)],
+                                Text(t, style: TextStyle(color: occupied ? const Color(0xFFF85149) : kTextPri)),
+                                if (occupied) ...[const SizedBox(width: 4), const Icon(Icons.block, size: 14, color: Color(0xFFF85149))],
                               ]),
                             );
                           }).toList(),
@@ -216,6 +205,8 @@ class _BookingScreenState extends State<BookingScreen> {
                       Expanded(
                         child: DropdownButtonFormField<int>(
                           value: _selectedHours,
+                          dropdownColor: kSurface,
+                          style: const TextStyle(color: kTextPri),
                           items: _hourOptions.map((h) => DropdownMenuItem(value: h, child: Text('$h h'))).toList(),
                           onChanged: (val) => setState(() => _selectedHours = val!),
                           decoration: _inputDecor('Horas'),
@@ -226,46 +217,50 @@ class _BookingScreenState extends State<BookingScreen> {
 
                   const SizedBox(height: 20),
 
-                  // Resumen
+                  // ── Resumen ───────────────────────────────────────────
                   Container(
                     padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 10)]),
+                    decoration: BoxDecoration(color: kCard, borderRadius: BorderRadius.circular(16), border: Border.all(color: kBorder)),
                     child: Column(children: [
                       _summaryRow(Icons.calendar_today, 'Día', _selectedDay != null ? DateFormat('dd/MMM/yyyy').format(_selectedDay!) : '-'),
-                      const Divider(height: 20),
+                      Divider(height: 20, color: kBorder),
                       _summaryRow(Icons.access_time, 'Horario', _timeRange),
-                      const Divider(height: 20),
+                      Divider(height: 20, color: kBorder),
                       _summaryRow(Icons.payments, 'Coste Total', '${totalPrice.toStringAsFixed(2)} €'),
                     ]),
                   ),
 
                   const SizedBox(height: 16),
 
-                  // Indicador disponibilidad
+                  // ── Disponibilidad ────────────────────────────────────
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     decoration: BoxDecoration(
-                      color: _currentSlotOccupied ? Colors.red.shade50 : Colors.green.shade50,
+                      color: _currentSlotOccupied ? const Color(0xFFF85149).withOpacity(0.1) : Colors.green.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: _currentSlotOccupied ? Colors.red.shade200 : Colors.green.shade200),
+                      border: Border.all(color: _currentSlotOccupied ? const Color(0xFFF85149).withOpacity(0.4) : Colors.green.withOpacity(0.4)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(_currentSlotOccupied ? Icons.block : Icons.check_circle_outline,
-                            color: _currentSlotOccupied ? Colors.red : Colors.green),
+                            color: _currentSlotOccupied ? const Color(0xFFF85149) : Colors.greenAccent),
                         const SizedBox(width: 8),
                         Text(
                           _currentSlotOccupied ? 'FRANJA OCUPADA — Elige otra hora' : 'INSTALACIÓN LIBRE',
-                          style: TextStyle(color: _currentSlotOccupied ? Colors.red : Colors.green, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: _currentSlotOccupied ? const Color(0xFFF85149) : Colors.greenAccent,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 24),
 
+                  // ── Botón Reservar ────────────────────────────────────
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -279,15 +274,19 @@ class _BookingScreenState extends State<BookingScreen> {
                         )));
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFF05B3A),
-                        disabledBackgroundColor: Colors.grey.shade300,
+                        backgroundColor: kPrimary,
+                        disabledBackgroundColor: kSurface,
                         padding: const EdgeInsets.symmetric(vertical: 18),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                         elevation: 0,
                       ),
                       child: Text(
                         _currentSlotOccupied ? 'NO DISPONIBLE' : 'RESERVAR AHORA',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: _currentSlotOccupied ? kTextSec : Colors.white,
+                        ),
                       ),
                     ),
                   ),
@@ -303,21 +302,23 @@ class _BookingScreenState extends State<BookingScreen> {
 
   Widget _summaryRow(IconData icon, String label, String value) {
     return Row(children: [
-      Icon(icon, size: 18, color: const Color(0xFF1B263B)),
+      Icon(icon, size: 18, color: kTextSec),
       const SizedBox(width: 12),
-      Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
+      Text(label, style: const TextStyle(color: kTextSec, fontSize: 14)),
       const Spacer(),
-      Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1B263B))),
+      Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: kTextPri)),
     ]);
   }
 
   InputDecoration _inputDecor(String label) {
     return InputDecoration(
       labelText: label,
+      labelStyle: const TextStyle(color: kTextSec),
       filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Colors.grey.shade200)),
+      fillColor: kSurface,
+      border:        OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kBorder)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kBorder)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: kPrimary, width: 1.5)),
     );
   }
 }
